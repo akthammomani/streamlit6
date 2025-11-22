@@ -12,7 +12,7 @@ st.set_page_config(
 )
 
 # Toggle for GitHub badge
-SHOW_GITHUB_BADGE = False 
+SHOW_GITHUB_BADGE = False
 
 # ---------------------------------------------------------
 # Global CSS: layout, fixed left nav, logo centering, search, radio styling
@@ -23,10 +23,11 @@ st.markdown(
     /* ===== Layout tweaks ===== */
     .block-container {
         padding-top: 0;
+        padding-bottom: 2rem;
         padding-left: 0;
         padding-right: 0;
-        max-width: 1200px;
-        margin: 0 auto;   /* center it in the browser */
+        max-width: 1400px;      /* keep page reasonably narrow */
+        margin: 0 auto;         /* center on screen */
     }
 
     /* Fixed left sidebar (column 1) */
@@ -34,19 +35,19 @@ st.markdown(
         position: fixed;
         top: 3.5rem;                 /* just under Streamlit header */
         left: 0;
-        width: 300px;                 /* wider sidebar */
+        width: 300px;                /* wider sidebar */
         height: calc(100vh - 3.5rem);
         padding: 1rem 1.5rem 2rem 1.5rem;
         border-right: 1px solid #e5e7eb;
-        background-color: #f3f4f6;    /* light grey sidebar */
+        background-color: #f3f4f6;   /* light grey sidebar */
         overflow-y: auto;
         z-index: 100;
     }
 
     /* Main content (column 2) */
     div[data-testid="column"]:nth-of-type(2) {
-        margin-left: 300px;           /* match left sidebar width */
-        margin-right: 260px;          /* match right sidebar width */
+        margin-left: 300px;          /* match left sidebar width */
+        margin-right: 260px;         /* match right sidebar width */
         padding-left: 2rem;
         padding-right: 2rem;
         padding-top: 3.5rem;
@@ -57,7 +58,7 @@ st.markdown(
         position: fixed;
         top: 3.5rem;
         right: 0;
-        width: 260px;                 /* right sidebar width */
+        width: 260px;                /* right sidebar width */
         height: calc(100vh - 3.5rem);
         padding: 1rem 1.5rem 2rem 1.5rem;
         border-left: 1px solid #e5e7eb;
@@ -128,7 +129,7 @@ st.markdown(
         padding: 0 !important;
     }
 
-    /* Hide the label text of the search input */
+    /* Hide the label text of the search input (we keep it only for accessibility) */
     div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] label {
         display: none;
     }
@@ -247,8 +248,6 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
-
-
 
 # ---------------------------------------------------------
 # Small helpers
@@ -395,9 +394,9 @@ with col_nav:
             unsafe_allow_html=True,
         )
 
-    # Search box
+    # Search box (non-empty label but visually hidden)
     query = st.text_input(
-        label="",
+        "Search",
         placeholder="Search",
         label_visibility="collapsed",
     )
@@ -416,8 +415,9 @@ with col_nav:
 
     nav_labels = [s["label"] for s in filtered_sections]
 
+    # Navigation radio (non-empty label but visually hidden)
     selected_label = st.radio(
-        label="",
+        "Sections",
         options=nav_labels,
         label_visibility="collapsed",
         key="nav_radio",
@@ -757,7 +757,7 @@ with col_main:
               - categorical: Best lift + Cramér's V.
             - `"hybrid"` (default): Adds both pieces:
 
-            `score = weight_shap * SHAP_norm + weight_effect * EFFECT_norm`
+            `score = weight_shap * SHAP_norm + weight_effect * (sd_norm + d_norm + lift_norm + V_norm)`
             """
         )
 
@@ -982,5 +982,3 @@ with col_toc:
         st.markdown("###### On this page")
         for item in items:
             st.markdown(f"- [{item['label']}](#{item['anchor']})")
-
-
