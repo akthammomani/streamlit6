@@ -25,7 +25,7 @@ st.markdown(
         padding-top: 0;
         padding-left: 0;
         padding-right: 0;
-        max-width: 1300px;
+        max-width: 1200px;
         margin: 0 auto;   /* center it in the browser */
     }
 
@@ -982,4 +982,5 @@ with col_toc:
         st.markdown("###### On this page")
         for item in items:
             st.markdown(f"- [{item['label']}](#{item['anchor']})")
+
 
