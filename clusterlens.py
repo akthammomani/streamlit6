@@ -27,8 +27,7 @@ st.markdown(
         --right-sidebar-width: 220px;
     }
 
-    /* ===== Layout tweaks ===== */
-    /* Make room at the top so content isn't hidden under the header */
+    /* ===== Overall layout ===== */
     .main .block-container {
         padding-top: var(--header-offset) !important;
         padding-left: 0 !important;
@@ -36,8 +35,16 @@ st.markdown(
         max-width: 1900px;
     }
 
-    /* Fixed left sidebar (column 1) */
-    div[data-testid="column"]:nth-of-type(1) {
+    /* Main content column: give space for fixed sidebars */
+    div[data-testid="column"]:nth-of-type(2) {
+        margin-left: var(--left-sidebar-width);
+        margin-right: var(--right-sidebar-width);
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+
+    /* ===== Fixed left sidebar ===== */
+    .nav-fixed {
         position: fixed;
         top: var(--header-offset);
         left: 0;
@@ -50,17 +57,8 @@ st.markdown(
         z-index: 100;
     }
 
-    /* Main content (column 2) */
-    div[data-testid="column"]:nth-of-type(2) {
-        margin-left: var(--left-sidebar-width);
-        margin-right: var(--right-sidebar-width);
-        padding-left: 2rem;
-        padding-right: 2rem;
-        /* we already added top padding on .block-container */
-    }
-
-    /* Fixed right "On this page" sidebar (column 3) */
-    div[data-testid="column"]:nth-of-type(3) {
+    /* ===== Fixed right sidebar ("On this page") ===== */
+    .toc-fixed {
         position: fixed;
         top: var(--header-offset);
         right: 0;
@@ -74,19 +72,20 @@ st.markdown(
     }
 
     /* ===== Logo: smaller + centered ===== */
-    div[data-testid="column"]:nth-of-type(1) img {
+    .nav-fixed img {
         display: block;
         margin-left: auto;
         margin-right: auto;
-        max-width: 70%;       /* smaller logo */
+        max-width: 70%;   /* reduce logo size */
         height: auto;
     }
 
-    div[data-testid="column"]:nth-of-type(1) div[data-testid="stImage"] {
+    /* Keep small spacing under logo */
+    .nav-fixed div[data-testid="stImage"] {
         margin-bottom: 0.75rem;
     }
 
-    /* ===== GitHub button (optional) ===== */
+    /* ===== GitHub button (unchanged) ===== */
     .gh-btn {
         display: inline-flex;
         align-items: stretch;
@@ -100,11 +99,7 @@ st.markdown(
         background-color: #ffffff;
         box-shadow: 0 1px 2px rgba(0,0,0,0.03);
     }
-
-    .gh-btn:hover {
-        background-color: #f6f8fa;
-    }
-
+    .gh-btn:hover { background-color: #f6f8fa; }
     .gh-left {
         display: inline-flex;
         align-items: center;
@@ -112,43 +107,35 @@ st.markdown(
         padding: 0.25rem 0.6rem;
         background-color: #f6f8fa;
     }
-
     .gh-right {
         padding: 0.25rem 0.6rem;
         border-left: 1px solid #d0d7de;
         font-variant-numeric: tabular-nums;
         background-color: #ffffff;
     }
+    .gh-icon { font-size: 0.9rem; }
 
-    .gh-icon {
-        font-size: 0.9rem;
-    }
-
-    /* ===== Search box styling (left column) ===== */
-    div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] {
+    /* ===== Search box styling ===== */
+    .nav-fixed div[data-testid="stTextInput"] {
         position: relative;
         margin: 0.25rem 0 1.25rem 0;
     }
-
-    div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] > div {
+    .nav-fixed div[data-testid="stTextInput"] > div {
         background-color: transparent !important;
         box-shadow: none !important;
         padding: 0 !important;
     }
-
-    div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] label {
+    .nav-fixed div[data-testid="stTextInput"] label {
         display: none;
     }
-
-    div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] input {
+    .nav-fixed div[data-testid="stTextInput"] input {
         border-radius: 999px;
         border: 1px solid #d1d5db;
         padding: 0.35rem 0.9rem 0.35rem 2rem;
         font-size: 0.9rem;
         background-color: #ffffff;
     }
-
-    div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"]::before {
+    .nav-fixed div[data-testid="stTextInput"]::before {
         content: "🔍";
         position: absolute;
         left: 0.6rem;
@@ -159,18 +146,16 @@ st.markdown(
         pointer-events: none;
     }
 
-    /* ===== Docs-style nav (radio but no round dots) ===== */
-    div[data-testid="stRadio"] > label {
+    /* ===== Docs-style nav (radio) ===== */
+    .nav-fixed div[data-testid="stRadio"] > label {
         display: none !important;
     }
-
-    div[data-testid="stRadio"] div[role="radiogroup"] {
+    .nav-fixed div[data-testid="stRadio"] div[role="radiogroup"] {
         display: flex;
         flex-direction: column;
         gap: 0.15rem;
     }
-
-    div[data-testid="stRadio"] div[role="radiogroup"] > label {
+    .nav-fixed div[data-testid="stRadio"] div[role="radiogroup"] > label {
         padding: 4px 10px;
         border-radius: 4px;
         cursor: pointer;
@@ -178,69 +163,53 @@ st.markdown(
         font-weight: 400;
         color: #374151;
     }
-
-    div[data-testid="stRadio"] div[role="radiogroup"] > label > div:first-child {
+    .nav-fixed div[data-testid="stRadio"] div[role="radiogroup"] > label > div:first-child {
         display: none !important;
     }
-
-    div[data-testid="stRadio"] div[role="radiogroup"] > label > div:last-child {
-        width: 100%;
-    }
-
-    div[data-testid="stRadio"] div[role="radiogroup"] > label[data-baseweb="radio"]:has(input:checked) {
+    .nav-fixed div[data-testid="stRadio"] div[role="radiogroup"] > label[data-baseweb="radio"]:has(input:checked) {
         background-color: #eff6ff;
         border-left: 3px solid #2563eb;
         color: #111827;
         font-weight: 600;
     }
-
-    div[data-testid="stRadio"] div[role="radiogroup"] > label:hover {
+    .nav-fixed div[data-testid="stRadio"] div[role="radiogroup"] > label:hover {
         background-color: #e5e7eb;
     }
 
-    /* ===== Right "On this page" sidebar text tweaks ===== */
-    div[data-testid="column"]:nth-of-type(3) h6 {
+    /* ===== Right sidebar text tweaks ===== */
+    .toc-fixed h6 {
         font-size: 0.85rem;
         font-weight: 600;
         margin-bottom: 0.15rem;
         color: #4b5563;
     }
-
-    div[data-testid="column"]:nth-of-type(3) ul {
+    .toc-fixed ul {
         list-style-type: disc;
         padding-left: 1.1rem;
         margin: 0;
     }
-
-    div[data-testid="column"]:nth-of-type(3) li {
+    .toc-fixed li {
         margin: 0;
         padding: 0;
         line-height: 1.1;
     }
-
-    div[data-testid="column"]:nth-of-type(3) li a {
+    .toc-fixed li a {
         font-size: 0.8rem;
         text-decoration: none;
         color: #2563eb;
     }
-
-    div[data-testid="column"]:nth-of-type(3) li a:hover {
-        text-decoration: underline;
-    }
+    .toc-fixed li a:hover { text-decoration: underline; }
 
     /* Headings scroll offset so anchors are not hidden under header */
     h1, h2, h3, h4, h5, h6 {
         scroll-margin-top: calc(var(--header-offset) + 0.5rem);
     }
 
-    pre, code {
-        font-size: 0.9rem !important;
-    }
+    pre, code { font-size: 0.9rem !important; }
 
-    /* Optional: fall back to normal stacked layout on very small screens */
+    /* Mobile: disable fixed layout */
     @media (max-width: 1100px) {
-        div[data-testid="column"]:nth-of-type(1),
-        div[data-testid="column"]:nth-of-type(3) {
+        .nav-fixed, .toc-fixed {
             position: static;
             width: auto;
             height: auto;
@@ -256,6 +225,7 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+
 
 
 
@@ -385,6 +355,7 @@ col_nav, col_main, col_toc = st.columns([0.22, 0.6, 0.18])
 
 # ---------------------- NAV COLUMN -----------------------
 with col_nav:
+    t.markdown('<div class="nav-fixed">', unsafe_allow_html=True)
     st.image("clusterlens_logo.png")
 
     # GitHub stars button (toggle with SHOW_GITHUB_BADGE)
@@ -986,10 +957,12 @@ with col_main:
 
 # ---------------------- RIGHT TOC COLUMN -----------------
 with col_toc:
+    st.markdown('<div class="toc-fixed">', unsafe_allow_html=True)
     items = TOC_ITEMS.get(section_id, [])
     if items:
         st.markdown("<div style='height: 2rem;'></div>", unsafe_allow_html=True)
         st.markdown("###### On this page")
         for item in items:
             st.markdown(f"- [{item['label']}](#{item['anchor']})")
+
 
