@@ -20,72 +20,63 @@ SHOW_GITHUB_BADGE = False
 st.markdown(
     """
     <style>
-    :root {
-        /* Height of Streamlit header + Streamlit Cloud toolbar */
-        --header-offset: 4.5rem;
-        --left-sidebar-width: 240px;
-        --right-sidebar-width: 220px;
-    }
-
-    /* ===== Overall layout ===== */
-    .main .block-container {
-        padding-top: var(--header-offset) !important;
-        padding-left: 0 !important;
-        padding-right: 0 !important;
+    /* ===== Layout tweaks ===== */
+    .block-container {
+        padding-top: 0;
+        padding-left: 0;
+        padding-right: 0;
         max-width: 1900px;
     }
 
-    /* Main content column: give space for fixed sidebars */
-    div[data-testid="column"]:nth-of-type(2) {
-        margin-left: var(--left-sidebar-width);
-        margin-right: var(--right-sidebar-width);
-        padding-left: 2rem;
-        padding-right: 2rem;
-    }
-
-    /* ===== Fixed left sidebar ===== */
-    .nav-fixed {
+    /* Fixed left sidebar (column 1) */
+    div[data-testid="column"]:nth-of-type(1) {
         position: fixed;
-        top: var(--header-offset);
+        top: 3.5rem;                 /* just under Streamlit header */
         left: 0;
-        width: var(--left-sidebar-width);
-        height: calc(100vh - var(--header-offset));
-        padding: 1rem 1.25rem 2rem 1.25rem;
+        width: 300px;                 /* wider sidebar */
+        height: calc(100vh - 3.5rem);
+        padding: 1rem 1.5rem 2rem 1.5rem;
         border-right: 1px solid #e5e7eb;
-        background-color: #f3f4f6;
+        background-color: #f3f4f6;    /* light grey sidebar */
         overflow-y: auto;
         z-index: 100;
     }
 
-    /* ===== Fixed right sidebar ("On this page") ===== */
-    .toc-fixed {
+    /* Main content (column 2) */
+    div[data-testid="column"]:nth-of-type(2) {
+        margin-left: 300px;           /* match left sidebar width */
+        margin-right: 260px;          /* match right sidebar width */
+        padding-left: 2rem;
+        padding-right: 2rem;
+        padding-top: 3.5rem;
+    }
+
+    /* Fixed right "On this page" sidebar (column 3) */
+    div[data-testid="column"]:nth-of-type(3) {
         position: fixed;
-        top: var(--header-offset);
+        top: 3.5rem;
         right: 0;
-        width: var(--right-sidebar-width);
-        height: calc(100vh - var(--header-offset));
-        padding: 1rem 1.25rem 2rem 1.25rem;
+        width: 260px;                 /* right sidebar width */
+        height: calc(100vh - 3.5rem);
+        padding: 1rem 1.5rem 2rem 1.5rem;
         border-left: 1px solid #e5e7eb;
         background-color: #ffffff;
         overflow-y: auto;
         z-index: 100;
     }
 
-    /* ===== Logo: smaller + centered ===== */
-    .nav-fixed img {
+    /* ===== Logo centering (left column) ===== */
+    div[data-testid="column"]:nth-of-type(1) img {
         display: block;
         margin-left: auto;
         margin-right: auto;
-        max-width: 70%;   /* reduce logo size */
-        height: auto;
     }
 
-    /* Keep small spacing under logo */
-    .nav-fixed div[data-testid="stImage"] {
+    div[data-testid="column"]:nth-of-type(1) div[data-testid="stImage"] {
         margin-bottom: 0.75rem;
     }
 
-    /* ===== GitHub button (unchanged) ===== */
+    /* ===== GitHub button (optional) ===== */
     .gh-btn {
         display: inline-flex;
         align-items: stretch;
@@ -99,7 +90,11 @@ st.markdown(
         background-color: #ffffff;
         box-shadow: 0 1px 2px rgba(0,0,0,0.03);
     }
-    .gh-btn:hover { background-color: #f6f8fa; }
+
+    .gh-btn:hover {
+        background-color: #f6f8fa;
+    }
+
     .gh-left {
         display: inline-flex;
         align-items: center;
@@ -107,35 +102,47 @@ st.markdown(
         padding: 0.25rem 0.6rem;
         background-color: #f6f8fa;
     }
+
     .gh-right {
         padding: 0.25rem 0.6rem;
         border-left: 1px solid #d0d7de;
         font-variant-numeric: tabular-nums;
         background-color: #ffffff;
     }
-    .gh-icon { font-size: 0.9rem; }
 
-    /* ===== Search box styling ===== */
-    .nav-fixed div[data-testid="stTextInput"] {
+    .gh-icon {
+        font-size: 0.9rem;
+    }
+
+    /* ===== Search box styling (left column) ===== */
+    div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] {
         position: relative;
         margin: 0.25rem 0 1.25rem 0;
     }
-    .nav-fixed div[data-testid="stTextInput"] > div {
+
+    /* Remove grey outer pill around the input wrapper */
+    div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] > div {
         background-color: transparent !important;
         box-shadow: none !important;
         padding: 0 !important;
     }
-    .nav-fixed div[data-testid="stTextInput"] label {
+
+    /* Hide the label text of the search input */
+    div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] label {
         display: none;
     }
-    .nav-fixed div[data-testid="stTextInput"] input {
+
+    /* Search input itself */
+    div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] input {
         border-radius: 999px;
         border: 1px solid #d1d5db;
-        padding: 0.35rem 0.9rem 0.35rem 2rem;
+        padding: 0.35rem 0.9rem 0.35rem 2rem;  /* left space for icon */
         font-size: 0.9rem;
-        background-color: #ffffff;
+        background-color: #ffffff;            /* white pill */
     }
-    .nav-fixed div[data-testid="stTextInput"]::before {
+
+    /* Magnifying glass icon */
+    div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"]::before {
         content: "🔍";
         position: absolute;
         left: 0.6rem;
@@ -146,16 +153,22 @@ st.markdown(
         pointer-events: none;
     }
 
-    /* ===== Docs-style nav (radio) ===== */
-    .nav-fixed div[data-testid="stRadio"] > label {
+    /* ===== Docs-style nav (radio but no round dots) ===== */
+
+    /* Completely hide the built-in radio label text ("Sections") */
+    div[data-testid="stRadio"] > label {
         display: none !important;
     }
-    .nav-fixed div[data-testid="stRadio"] div[role="radiogroup"] {
+
+    /* Container that holds all options */
+    div[data-testid="stRadio"] div[role="radiogroup"] {
         display: flex;
         flex-direction: column;
         gap: 0.15rem;
     }
-    .nav-fixed div[data-testid="stRadio"] div[role="radiogroup"] > label {
+
+    /* Each option row */
+    div[data-testid="stRadio"] div[role="radiogroup"] > label {
         padding: 4px 10px;
         border-radius: 4px;
         cursor: pointer;
@@ -163,70 +176,76 @@ st.markdown(
         font-weight: 400;
         color: #374151;
     }
-    .nav-fixed div[data-testid="stRadio"] div[role="radiogroup"] > label > div:first-child {
+
+    /* Hide the circular radio icon */
+    div[data-testid="stRadio"] div[role="radiogroup"] > label > div:first-child {
         display: none !important;
     }
-    .nav-fixed div[data-testid="stRadio"] div[role="radiogroup"] > label[data-baseweb="radio"]:has(input:checked) {
+
+    /* Text container inside label */
+    div[data-testid="stRadio"] div[role="radiogroup"] > label > div:last-child {
+        width: 100%;
+    }
+
+    /* Selected state */
+    div[data-testid="stRadio"] div[role="radiogroup"] > label[data-baseweb="radio"]:has(input:checked) {
         background-color: #eff6ff;
         border-left: 3px solid #2563eb;
         color: #111827;
         font-weight: 600;
     }
-    .nav-fixed div[data-testid="stRadio"] div[role="radiogroup"] > label:hover {
+
+    /* Hover state */
+    div[data-testid="stRadio"] div[role="radiogroup"] > label:hover {
         background-color: #e5e7eb;
     }
 
-    /* ===== Right sidebar text tweaks ===== */
-    .toc-fixed h6 {
+    /* ===== Right "On this page" sidebar text tweaks ===== */
+
+    /* Your "On this page" title (you use ###### => h6) */
+    div[data-testid="column"]:nth-of-type(3) h6 {
         font-size: 0.85rem;
         font-weight: 600;
+        text-transform: none;
         margin-bottom: 0.15rem;
         color: #4b5563;
     }
-    .toc-fixed ul {
+
+    /* Bullet list inside right column */
+    div[data-testid="column"]:nth-of-type(3) ul {
         list-style-type: disc;
         padding-left: 1.1rem;
-        margin: 0;
+        margin: 0;                       /* no extra margin */
     }
-    .toc-fixed li {
-        margin: 0;
+
+    div[data-testid="column"]:nth-of-type(3) li {
+        margin: 0;                       /* remove vertical gap */
         padding: 0;
-        line-height: 1.1;
+        line-height: 1.1;                /* tighter line spacing */
     }
-    .toc-fixed li a {
-        font-size: 0.8rem;
+
+    div[data-testid="column"]:nth-of-type(3) li a {
+        font-size: 0.8rem;               /* smaller font for TOC items */
         text-decoration: none;
         color: #2563eb;
     }
-    .toc-fixed li a:hover { text-decoration: underline; }
+
+    div[data-testid="column"]:nth-of-type(3) li a:hover {
+        text-decoration: underline;
+    }
 
     /* Headings scroll offset so anchors are not hidden under header */
     h1, h2, h3, h4, h5, h6 {
-        scroll-margin-top: calc(var(--header-offset) + 0.5rem);
+        scroll-margin-top: 1.5rem;
     }
 
-    pre, code { font-size: 0.9rem !important; }
-
-    /* Mobile: disable fixed layout */
-    @media (max-width: 1100px) {
-        .nav-fixed, .toc-fixed {
-            position: static;
-            width: auto;
-            height: auto;
-            border: none;
-        }
-        div[data-testid="column"]:nth-of-type(2) {
-            margin-left: 0;
-            margin-right: 0;
-            padding: 1rem;
-        }
+    pre, code {
+        font-size: 0.9rem !important;
     }
     </style>
     """,
     unsafe_allow_html=True,
 )
-
-
 
 
 
@@ -355,7 +374,6 @@ col_nav, col_main, col_toc = st.columns([0.22, 0.6, 0.18])
 
 # ---------------------- NAV COLUMN -----------------------
 with col_nav:
-    t.markdown('<div class="nav-fixed">', unsafe_allow_html=True)
     st.image("clusterlens_logo.png")
 
     # GitHub stars button (toggle with SHOW_GITHUB_BADGE)
@@ -957,12 +975,9 @@ with col_main:
 
 # ---------------------- RIGHT TOC COLUMN -----------------
 with col_toc:
-    st.markdown('<div class="toc-fixed">', unsafe_allow_html=True)
     items = TOC_ITEMS.get(section_id, [])
     if items:
         st.markdown("<div style='height: 2rem;'></div>", unsafe_allow_html=True)
         st.markdown("###### On this page")
         for item in items:
             st.markdown(f"- [{item['label']}](#{item['anchor']})")
-
-
