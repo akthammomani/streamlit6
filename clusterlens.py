@@ -17,235 +17,110 @@ SHOW_GITHUB_BADGE = False
 # ---------------------------------------------------------
 # Global CSS: layout, fixed left nav, logo centering, search, radio styling
 # ---------------------------------------------------------
-st.markdown(
-    """
-    <style>
-    /* ===== Layout tweaks ===== */
-    .block-container {
-        padding-top: 0;
-        padding-left: 0;
-        padding-right: 0;
-        max-width: 1900px;
-    }
+st.markdown("""
+<style>
+/* ---------- Normalize header so Cloud & local behave the same ---------- */
+header[data-testid="stHeader"] {
+  height: 56px;                 /* force a consistent appbar height */
+  background: white;
+}
+header[data-testid="stHeader"] div { display: none; }  /* keep header space, hide content */
 
-    /* Fixed left sidebar (column 1) */
-    div[data-testid="column"]:nth-of-type(1) {
-        position: fixed;
-        top: 3.5rem;                 /* just under Streamlit header */
-        left: 0;
-        width: 300px;                 /* wider sidebar */
-        height: calc(100vh - 3.5rem);
-        padding: 1rem 1.5rem 2rem 1.5rem;
-        border-right: 1px solid #e5e7eb;
-        background-color: #f3f4f6;    /* light grey sidebar */
-        overflow-y: auto;
-        z-index: 100;
-    }
+/* ---------- App container ---------- */
+.block-container {
+  padding: 0 !important;
+  max-width: 1900px;
+}
 
-    /* Main content (column 2) */
-    div[data-testid="column"]:nth-of-type(2) {
-        margin-left: 300px;           /* match left sidebar width */
-        margin-right: 260px;          /* match right sidebar width */
-        padding-left: 2rem;
-        padding-right: 2rem;
-        padding-top: 3.5rem;
-    }
+/* ---------- Sizes (easy to tweak) ---------- */
+:root {
+  --top-offset: 56px;   /* must match header height above */
+  --left-w: 240px;      /* left sidebar width */
+  --right-w: 220px;     /* right sidebar width */
+}
 
-    /* Fixed right "On this page" sidebar (column 3) */
-    div[data-testid="column"]:nth-of-type(3) {
-        position: fixed;
-        top: 3.5rem;
-        right: 0;
-        width: 260px;                 /* right sidebar width */
-        height: calc(100vh - 3.5rem);
-        padding: 1rem 1.5rem 2rem 1.5rem;
-        border-left: 1px solid #e5e7eb;
-        background-color: #ffffff;
-        overflow-y: auto;
-        z-index: 100;
-    }
+/* ---------- Left fixed sidebar ---------- */
+div[data-testid="column"]:nth-of-type(1){
+  position: fixed;
+  top: var(--top-offset);
+  left: 0;
+  width: var(--left-w);
+  height: calc(100vh - var(--top-offset));
+  padding: 0.75rem 1rem 1.5rem 1rem;
+  border-right: 1px solid #e5e7eb;
+  background: #f7f7f9;
+  overflow-y: auto;
+  z-index: 100;
+}
 
-    /* ===== Logo centering (left column) ===== */
-    div[data-testid="column"]:nth-of-type(1) img {
-        display: block;
-        margin-left: auto;
-        margin-right: auto;
-    }
+/* Logo sizing */
+div[data-testid="column"]:nth-of-type(1) img{
+  display: block;
+  margin: 0 auto 0.5rem auto;
+  max-width: 160px;      /* smaller logo */
+  height: auto;
+}
 
-    div[data-testid="column"]:nth-of-type(1) div[data-testid="stImage"] {
-        margin-bottom: 0.75rem;
-    }
+/* ---------- Main content column ---------- */
+div[data-testid="column"]:nth-of-type(2){
+  margin-left: var(--left-w);
+  margin-right: var(--right-w);
+  padding: calc(var(--top-offset) + 12px) 2rem 2rem 2rem; /* keep space below header */
+  min-height: calc(100vh - var(--top-offset));
+}
 
-    /* ===== GitHub button (optional) ===== */
-    .gh-btn {
-        display: inline-flex;
-        align-items: stretch;
-        margin: 0.25rem auto 1rem auto;
-        border-radius: 4px;
-        overflow: hidden;
-        border: 1px solid #d0d7de;
-        font-size: 0.8rem;
-        text-decoration: none;
-        color: #111827;
-        background-color: #ffffff;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.03);
-    }
+/* ---------- Right fixed sidebar (TOC) ---------- */
+div[data-testid="column"]:nth-of-type(3){
+  position: fixed;
+  top: var(--top-offset);
+  right: 0;
+  width: var(--right-w);
+  height: calc(100vh - var(--top-offset));
+  padding: 0.75rem 1rem 1.5rem 1rem;
+  border-left: 1px solid #e5e7eb;
+  background: #fff;
+  overflow-y: auto;
+  z-index: 100;
+}
 
-    .gh-btn:hover {
-        background-color: #f6f8fa;
-    }
+/* ---------- Left nav: search & radio styling ---------- */
+div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"]{ margin: 0.25rem 0 1rem 0; }
+div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] > div{ background: transparent !important; box-shadow:none !important; padding:0 !important; }
+div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] label{ display:none; }
+div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] input{
+  border-radius:999px; border:1px solid #d1d5db; padding:0.35rem 0.9rem 0.35rem 2rem; font-size:0.9rem; background:#fff;
+}
+div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"]::before{
+  content:"🔍"; position:absolute; left:0.6rem; top:50%; transform:translateY(-50%); font-size:0.85rem; color:#9ca3af; pointer-events:none;
+}
+div[data-testid="stRadio"] > label{ display:none !important; }
+div[data-testid="stRadio"] div[role="radiogroup"]{ display:flex; flex-direction:column; gap:0.1rem; }
+div[data-testid="stRadio"] div[role="radiogroup"] > label{ padding:4px 10px; border-radius:4px; cursor:pointer; font-size:0.93rem; color:#374151; }
+div[data-testid="stRadio"] div[role="radiogroup"] > label > div:first-child{ display:none !important; }
+div[data-testid="stRadio"] div[role="radiogroup"] > label[data-baseweb="radio"]:has(input:checked){
+  background:#eff6ff; border-left:3px solid #2563eb; color:#111827; font-weight:600;
+}
+div[data-testid="stRadio"] div[role="radiogroup"] > label:hover{ background:#e5e7eb; }
 
-    .gh-left {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.35rem;
-        padding: 0.25rem 0.6rem;
-        background-color: #f6f8fa;
-    }
+/* ---------- Right TOC text tweaks ---------- */
+div[data-testid="column"]:nth-of-type(3) h6{ font-size:0.85rem; font-weight:600; margin:0 0 0.25rem 0; color:#4b5563; }
+div[data-testid="column"]:nth-of-type(3) ul{ list-style-type:disc; padding-left:1.1rem; margin:0; }
+div[data-testid="column"]:nth-of-type(3) li{ margin:0; line-height:1.15; }
+div[data-testid="column"]:nth-of-type(3) li a{ font-size:0.8rem; text-decoration:none; color:#2563eb; }
+div[data-testid="column"]:nth-of-type(3) li a:hover{ text-decoration:underline; }
 
-    .gh-right {
-        padding: 0.25rem 0.6rem;
-        border-left: 1px solid #d0d7de;
-        font-variant-numeric: tabular-nums;
-        background-color: #ffffff;
-    }
+/* ---------- Headings offset so anchors aren't hidden ---------- */
+h1,h2,h3,h4,h5,h6{ scroll-margin-top: calc(var(--top-offset) + 8px); }
 
-    .gh-icon {
-        font-size: 0.9rem;
-    }
+/* ---------- Small screens: fall back to single column ---------- */
+@media (max-width: 1100px){
+  div[data-testid="column"]:nth-of-type(1),
+  div[data-testid="column"]:nth-of-type(3){ position:static; width:auto; height:auto; border:none; }
+  div[data-testid="column"]:nth-of-type(2){ margin: 0; padding: 1rem; }
+}
+</style>
+""", unsafe_allow_html=True)
 
-    /* ===== Search box styling (left column) ===== */
-    div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] {
-        position: relative;
-        margin: 0.25rem 0 1.25rem 0;
-    }
-
-    /* Remove grey outer pill around the input wrapper */
-    div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] > div {
-        background-color: transparent !important;
-        box-shadow: none !important;
-        padding: 0 !important;
-    }
-
-    /* Hide the label text of the search input */
-    div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] label {
-        display: none;
-    }
-
-    /* Search input itself */
-    div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] input {
-        border-radius: 999px;
-        border: 1px solid #d1d5db;
-        padding: 0.35rem 0.9rem 0.35rem 2rem;  /* left space for icon */
-        font-size: 0.9rem;
-        background-color: #ffffff;            /* white pill */
-    }
-
-    /* Magnifying glass icon */
-    div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"]::before {
-        content: "🔍";
-        position: absolute;
-        left: 0.6rem;
-        top: 50%;
-        transform: translateY(-50%);
-        font-size: 0.85rem;
-        color: #9ca3af;
-        pointer-events: none;
-    }
-
-    /* ===== Docs-style nav (radio but no round dots) ===== */
-
-    /* Completely hide the built-in radio label text ("Sections") */
-    div[data-testid="stRadio"] > label {
-        display: none !important;
-    }
-
-    /* Container that holds all options */
-    div[data-testid="stRadio"] div[role="radiogroup"] {
-        display: flex;
-        flex-direction: column;
-        gap: 0.15rem;
-    }
-
-    /* Each option row */
-    div[data-testid="stRadio"] div[role="radiogroup"] > label {
-        padding: 4px 10px;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 0.95rem;
-        font-weight: 400;
-        color: #374151;
-    }
-
-    /* Hide the circular radio icon */
-    div[data-testid="stRadio"] div[role="radiogroup"] > label > div:first-child {
-        display: none !important;
-    }
-
-    /* Text container inside label */
-    div[data-testid="stRadio"] div[role="radiogroup"] > label > div:last-child {
-        width: 100%;
-    }
-
-    /* Selected state */
-    div[data-testid="stRadio"] div[role="radiogroup"] > label[data-baseweb="radio"]:has(input:checked) {
-        background-color: #eff6ff;
-        border-left: 3px solid #2563eb;
-        color: #111827;
-        font-weight: 600;
-    }
-
-    /* Hover state */
-    div[data-testid="stRadio"] div[role="radiogroup"] > label:hover {
-        background-color: #e5e7eb;
-    }
-
-    /* ===== Right "On this page" sidebar text tweaks ===== */
-
-    /* Your "On this page" title (you use ###### => h6) */
-    div[data-testid="column"]:nth-of-type(3) h6 {
-        font-size: 0.85rem;
-        font-weight: 600;
-        text-transform: none;
-        margin-bottom: 0.15rem;
-        color: #4b5563;
-    }
-
-    /* Bullet list inside right column */
-    div[data-testid="column"]:nth-of-type(3) ul {
-        list-style-type: disc;
-        padding-left: 1.1rem;
-        margin: 0;                       /* no extra margin */
-    }
-
-    div[data-testid="column"]:nth-of-type(3) li {
-        margin: 0;                       /* remove vertical gap */
-        padding: 0;
-        line-height: 1.1;                /* tighter line spacing */
-    }
-
-    div[data-testid="column"]:nth-of-type(3) li a {
-        font-size: 0.8rem;               /* smaller font for TOC items */
-        text-decoration: none;
-        color: #2563eb;
-    }
-
-    div[data-testid="column"]:nth-of-type(3) li a:hover {
-        text-decoration: underline;
-    }
-
-    /* Headings scroll offset so anchors are not hidden under header */
-    h1, h2, h3, h4, h5, h6 {
-        scroll-margin-top: 1.5rem;
-    }
-
-    pre, code {
-        font-size: 0.9rem !important;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
 
 
 
@@ -981,3 +856,4 @@ with col_toc:
         st.markdown("###### On this page")
         for item in items:
             st.markdown(f"- [{item['label']}](#{item['anchor']})")
+
