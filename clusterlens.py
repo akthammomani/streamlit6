@@ -2,7 +2,7 @@
 import streamlit as st
 import requests
 from textwrap import dedent
-import streamlit.components.v1 as components  # for header-height fix
+import streamlit.components.v1 as components  # header-height fix
 
 # ---------------------------------------------------------
 # Page config
@@ -16,8 +16,7 @@ st.set_page_config(
 SHOW_GITHUB_BADGE = False
 
 # ---------------------------------------------------------
-# Robust header height -> CSS var to avoid "clipped top"
-# (Why: Streamlit Cloud header/toolbars differ from local; we measure once and on resize)
+# Header height -> CSS var (prevents "clipped top" on Cloud)
 # ---------------------------------------------------------
 components.html(
     """
@@ -26,19 +25,14 @@ components.html(
       const doc = parent.document;
       const header = doc.querySelector('header[data-testid="stHeader"]');
       const root = doc.documentElement;
-
       function setOffset() {
         const h = header ? header.offsetHeight : 64;
-        // extra 8px breathing room
-        root.style.setProperty('--top-offset', (h + 8) + 'px');
+        root.style.setProperty('--top-offset', (h + 8) + 'px'); // +8px breathing room
       }
       setOffset();
       if (header && 'ResizeObserver' in window) {
-        try { new ResizeObserver(setOffset).observe(header); } catch (e) { setOffset(); }
-      } else {
-        // fallback update on load + after a tick
-        setTimeout(setOffset, 500);
-      }
+        try { new ResizeObserver(setOffset).observe(header); } catch (_) { setOffset(); }
+      } else { setTimeout(setOffset, 500); }
     })();
     </script>
     """,
@@ -46,14 +40,14 @@ components.html(
 )
 
 # ---------------------------------------------------------
-# Layout + visual constants (tunable)
+# Tunables
 # ---------------------------------------------------------
 LEFT_SIDEBAR_PX = 240
 RIGHT_SIDEBAR_PX = 220
-LOGO_WIDTH = 140
+LOGO_WIDTH = 220  # <-- larger logo
 
 # ---------------------------------------------------------
-# Global CSS (sticky sidebars, margins, logo sizing, etc.)
+# Global CSS
 # ---------------------------------------------------------
 st.markdown(
     f"""
@@ -61,45 +55,43 @@ st.markdown(
     :root {{
         --left-col: {LEFT_SIDEBAR_PX}px;
         --right-col: {RIGHT_SIDEBAR_PX}px;
-        --top-offset: 72px; /* default; JS above will update this */
+        --top-offset: 72px; /* default; JS updates it */
     }}
 
-    /* ===== App container spacing ===== */
     .block-container {{
-        /* keep a small top pad; true top spacing handled by columns below */
         padding-top: 0.5rem;
         padding-left: 0;
         padding-right: 0;
         max-width: 1900px;
     }}
 
-    /* ===== Left column: sticky nav ===== */
-    /* Use high specificity and attribute selectors (more robust across Streamlit versions) */
+    /* ===== Left sticky column ===== */
     div[data-testid="stVerticalBlock"] > div:has(> div[data-testid="column"]) > div[data-testid="column"]:nth-of-type(1) {{
         position: sticky;
         top: var(--top-offset);
-        align-self: flex-start;             /* ensure sticky works in flex contexts */
+        align-self: flex-start;
         width: var(--left-col);
         min-width: var(--left-col);
         max-width: var(--left-col);
         height: calc(100vh - var(--top-offset));
-        padding: 0.75rem 1rem 1.25rem 1rem;
+        padding: 0.9rem 1rem 1.25rem 1rem;  /* top pad avoids any clip */
         border-right: 1px solid #e5e7eb;
         background-color: #f3f4f6;
         overflow-y: auto;
         z-index: 2;
+        box-sizing: border-box;
     }}
 
     /* ===== Main column ===== */
     div[data-testid="stVerticalBlock"] > div:has(> div[data-testid="column"]) > div[data-testid="column"]:nth-of-type(2) {{
-        /* leave space for the sticky columns */
         margin-left: var(--left-col);
         margin-right: var(--right-col);
         padding: 0 1.5rem;
-        padding-top: var(--top-offset);     /* avoid clipping under Streamlit header */
+        padding-top: var(--top-offset);
+        box-sizing: border-box;
     }}
 
-    /* ===== Right column: sticky TOC ===== */
+    /* ===== Right sticky column ===== */
     div[data-testid="stVerticalBlock"] > div:has(> div[data-testid="column"]) > div[data-testid="column"]:nth-of-type(3) {{
         position: sticky;
         top: var(--top-offset);
@@ -113,35 +105,24 @@ st.markdown(
         background-color: #ffffff;
         overflow-y: auto;
         z-index: 2;
+        box-sizing: border-box;
     }}
 
-    /* ===== Minor polish ===== */
-    /* Cap any image in left column (logo) */
-    div[data-testid="stVerticalBlock"] > div:has(> div[data-testid="column"]) > div[data-testid="column"]:nth-of-type(1) img {{
-        display: block;
-        margin: 0 auto;
-        max-width: {LOGO_WIDTH}px;
+    /* ===== Centered, larger, never-clipped logo ===== */
+    .cl-logo-wrap {{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.25rem 0 0.5rem 0;   /* space from top */
+    }}
+    .cl-logo-wrap img {{
+        width: {LOGO_WIDTH}px;         /* desired size */
+        max-width: 90%;                /* responsive safety */
         height: auto;
-    }}
-    div[data-testid="stVerticalBlock"] > div:has(> div[data-testid="column"]) > div[data-testid="column"]:nth-of-type(1) div[data-testid="stImage"] {{
-        margin-bottom: 0.5rem;
+        display: block;
     }}
 
-    /* radio-as-docs nav */
-    div[data-testid="stRadio"] > label {{ display: none !important; }}
-    div[data-testid="stRadio"] div[role="radiogroup"] {{
-        display: flex; flex-direction: column; gap: 0.15rem;
-    }}
-    div[data-testid="stRadio"] div[role="radiogroup"] > label {{
-        padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.95rem; font-weight: 400; color: #374151;
-    }}
-    div[data-testid="stRadio"] div[role="radiogroup"] > label > div:first-child {{ display: none !important; }}
-    div[data-testid="stRadio"] div[role="radiogroup"] > label[data-baseweb="radio"]:has(input:checked) {{
-        background-color: #eff6ff; border-left: 3px solid #2563eb; color: #111827; font-weight: 600;
-    }}
-    div[data-testid="stRadio"] div[role="radiogroup"] > label:hover {{ background-color: #e5e7eb; }}
-
-    /* search box */
+    /* Search styling (unchanged) */
     div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] {{
         position: relative; margin: 0.25rem 0 1rem 0;
     }}
@@ -156,6 +137,18 @@ st.markdown(
         content: "🔍"; position: absolute; left: 0.6rem; top: 50%; transform: translateY(-50%); font-size: 0.85rem; color: #9ca3af; pointer-events: none;
     }}
 
+    /* Radio-as-docs nav */
+    div[data-testid="stRadio"] > label {{ display: none !important; }}
+    div[data-testid="stRadio"] div[role="radiogroup"] {{ display: flex; flex-direction: column; gap: 0.15rem; }}
+    div[data-testid="stRadio"] div[role="radiogroup"] > label {{
+        padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.95rem; font-weight: 400; color: #374151;
+    }}
+    div[data-testid="stRadio"] div[role="radiogroup"] > label > div:first-child {{ display: none !important; }}
+    div[data-testid="stRadio"] div[role="radiogroup"] > label[data-baseweb="radio"]:has(input:checked) {{
+        background-color: #eff6ff; border-left: 3px solid #2563eb; color: #111827; font-weight: 600;
+    }}
+    div[data-testid="stRadio"] div[role="radiogroup"] > label:hover {{ background-color: #e5e7eb; }}
+
     /* TOC */
     div[data-testid="column"]:nth-of-type(3) h6 {{
         font-size: 0.85rem; font-weight: 600; margin-bottom: 0.15rem; color: #4b5563;
@@ -165,20 +158,16 @@ st.markdown(
     div[data-testid="column"]:nth-of-type(3) li a {{ font-size: 0.8rem; text-decoration: none; color: #2563eb; }}
     div[data-testid="column"]:nth-of-type(3) li a:hover {{ text-decoration: underline; }}
 
-    /* Headings offset to not hide under header when jumping */
+    /* Anchor offset */
     h1, h2, h3, h4, h5, h6 {{ scroll-margin-top: calc(var(--top-offset) + 8px); }}
 
     pre, code {{ font-size: 0.9rem !important; }}
 
-    /* ===== Responsive fallback ===== */
+    /* Responsive fallbacks */
     @media (max-width: 1100px) {{
-        :root {{
-            --left-col: 200px;
-            --right-col: 200px;
-        }}
+        :root {{ --left-col: 200px; --right-col: 200px; }}
     }}
     @media (max-width: 900px) {{
-        /* collapse to 1col on small screens */
         div[data-testid="stVerticalBlock"] > div:has(> div[data-testid="column"]) > div[data-testid="column"] {{
             position: static !important; width: auto !important; min-width: 0 !important; max-width: none !important;
             margin: 0 !important; height: auto !important; overflow: visible !important;
@@ -191,7 +180,7 @@ st.markdown(
 )
 
 # ---------------------------------------------------------
-# Small helpers
+# Helpers
 # ---------------------------------------------------------
 @st.cache_data(ttl=3600)
 def get_github_stars():
@@ -206,12 +195,11 @@ def get_github_stars():
     return None
 
 def subheader_with_anchor(text: str, anchor: str):
-    """Render a subheader with an HTML anchor so the TOC can link to it."""
     st.markdown(f'<div id="{anchor}"></div>', unsafe_allow_html=True)
     st.subheader(text)
 
 # ---------------------------------------------------------
-# Navigation model
+# Nav model
 # ---------------------------------------------------------
 SECTIONS = [
     {"id": "home",                     "label": "Home"},
@@ -227,49 +215,16 @@ SECTIONS = [
 ]
 
 SECTION_SEARCH = {
-    "home": """
-        overview introduction clusters clusterlens segmentation interpretability
-        one-vs-rest classifiers shap narratives exports
-    """,
-    "quickstart": """
-        quickstart example ClusterAnalyzer ca.fit
-        get_cluster_classification_stats get_top_shap_features
-        generate_cluster_narratives
-    """,
-    "data_requirements": """
-        pandas DataFrame numeric features categorical features
-        is_numeric_dtype OneHotEncoder LeaveOneOutEncoder CatBoostEncoder
-        num_features cat_features cluster_col
-    """,
-    "api_init_fit": """
-        ClusterAnalyzer.__init__ ClusterAnalyzer.fit
-        cluster_col encoder onehot loo catboost model_type rf lgbm xgb
-        eval_max_n test_size sample_n sample_frac stratify_sample
-    """,
-    "api_importance_shap": """
-        plot_cluster_shap importance_scope positive negative all
-        get_cluster_classification_stats get_top_shap_features Abs_SHAP
-    """,
-    "api_contrastive": """
-        contrastive_importance shap effect hybrid weight_shap weight_effect
-        min_support Cohen d Cramér V
-    """,
-    "api_distributions": """
-        compare_feature_across_clusters histograms stacked bar auto_log_skew
-        log1p skewness
-    """,
-    "api_narratives_summaries": """
-        generate_cluster_narratives get_cluster_summary cluster size share
-        nearest cluster Mann-Whitney Cohen d Cramér V
-    """,
-    "api_splits_exports": """
-        get_split_table export_summary save_shap_figs shap_cluster_0
-        train test splits summary csv
-    """,
-    "under_the_hood": """
-        nearest_cluster_centroid medians IQR shap.Explainer TreeExplainer
-        effect sizes Cramér V
-    """,
+    "home": "overview introduction clusters clusterlens segmentation interpretability one-vs-rest classifiers shap narratives exports",
+    "quickstart": "quickstart example ClusterAnalyzer ca.fit get_cluster_classification_stats get_top_shap_features generate_cluster_narratives",
+    "data_requirements": "pandas DataFrame numeric features categorical features is_numeric_dtype OneHotEncoder LeaveOneOutEncoder CatBoostEncoder num_features cat_features cluster_col",
+    "api_init_fit": "ClusterAnalyzer.__init__ ClusterAnalyzer.fit cluster_col encoder onehot loo catboost model_type rf lgbm xgb eval_max_n test_size sample_n sample_frac stratify_sample",
+    "api_importance_shap": "plot_cluster_shap importance_scope positive negative all get_cluster_classification_stats get_top_shap_features Abs_SHAP",
+    "api_contrastive": "contrastive_importance shap effect hybrid weight_shap weight_effect min_support Cohen d Cramér V",
+    "api_distributions": "compare_feature_across_clusters histograms stacked bar auto_log_skew log1p skewness",
+    "api_narratives_summaries": "generate_cluster_narratives get_cluster_summary cluster size share nearest cluster Mann-Whitney Cohen d Cramér V",
+    "api_splits_exports": "get_split_table export_summary save_shap_figs shap_cluster_0 train test splits summary csv",
+    "under_the_hood": "nearest_cluster_centroid medians IQR shap.Explainer TreeExplainer effect sizes Cramér V",
 }
 
 TOC_ITEMS = {
@@ -305,13 +260,21 @@ if "active_section" not in st.session_state:
     st.session_state["active_section"] = "home"
 
 # ---------------------------------------------------------
-# Layout: three columns (sticky nav + main content + right TOC)
+# 3 columns
 # ---------------------------------------------------------
 col_nav, col_main, col_toc = st.columns([0.22, 0.6, 0.18], gap="small")
 
 # ---------------------- NAV COLUMN -----------------------
 with col_nav:
-    st.image("clusterlens_logo.png", width=LOGO_WIDTH)
+    # Flex-centered logo (bigger, never clipped)
+    st.markdown(
+        """
+        <div class="cl-logo-wrap">
+            <img src="clusterlens_logo.png" alt="ClusterLens logo"/>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
     if SHOW_GITHUB_BADGE:
         stars = get_github_stars()
@@ -375,18 +338,7 @@ with col_main:
         st.header("Core idea")
         st.markdown(
             """
-            At its core, ClusterLens:
-
-            1. Takes your labeled data (`df` with a cluster column).
-            2. Builds **one-vs-rest classifiers (OVR)** for each cluster.
-            3. Uses **SHAP + effect sizes** to understand what separates clusters.
-            4. Exposes a small, opinionated API to:
-               - inspect **per-cluster metrics**,
-               - rank **feature importance**,
-               - compute **contrastive importance** between clusters,
-               - plot **distributions**,
-               - generate **markdown narratives**,
-               - export **summary tables** and **SHAP PNGs**.
+            1) labeled data → 2) OVR classifiers → 3) SHAP + effect sizes → 4) small API (metrics, importance, contrastive, dists, narratives, exports).
             """
         )
 
@@ -404,9 +356,6 @@ with col_main:
                 ca = ClusterAnalyzer(
                     df=df,
                     cluster_col="Cluster",
-                    # optional: override auto-detected lists
-                    # num_features=[...],
-                    # cat_features=[...],
                     encoder="onehot",
                     model_type="rf",
                     eval_max_n=5000,
@@ -426,23 +375,13 @@ with col_main:
                 """
             )
         )
-        st.markdown(
-            """
-            Minimal **happy path** steps shown above.
-            """
-        )
 
     elif section_id == "data_requirements":
         st.header("Data requirements")
-        st.markdown(
-            """
-            ClusterLens expects a DataFrame with a cluster label column and any mix of numeric/categorical features.
-            """
-        )
+        st.markdown("DataFrame with cluster labels; numeric + categorical features supported.")
 
     elif section_id == "api_init_fit":
         st.header("API: init & fit")
-
         subheader_with_anchor("ClusterAnalyzer.__init__", "api_init_fit_init")
         st.markdown(
             dedent(
@@ -463,7 +402,6 @@ with col_main:
                 """
             )
         )
-
         subheader_with_anchor("ClusterAnalyzer.fit", "api_init_fit_fit")
         st.markdown(
             dedent(
@@ -482,7 +420,6 @@ with col_main:
 
     elif section_id == "api_importance_shap":
         st.header("API: importance & SHAP")
-
         subheader_with_anchor("plot_cluster_shap", "api_importance_plot")
         st.markdown(
             dedent(
@@ -497,10 +434,8 @@ with col_main:
                 """
             )
         )
-
         subheader_with_anchor("get_cluster_classification_stats", "api_importance_stats")
         st.markdown("`stats = ca.get_cluster_classification_stats()`")
-
         subheader_with_anchor("get_top_shap_features", "api_importance_top_feats")
         st.markdown(
             dedent(
@@ -517,7 +452,6 @@ with col_main:
 
     elif section_id == "api_contrastive":
         st.header("API: contrastive importance")
-
         subheader_with_anchor("contrastive_importance", "api_contrastive_main")
         st.markdown(
             dedent(
@@ -538,18 +472,9 @@ with col_main:
             )
         )
 
-        subheader_with_anchor("Modes", "api_contrastive_modes")
-        st.markdown("Use SHAP, effect sizes, or a hybrid score.")
-
-        subheader_with_anchor("Weights", "api_contrastive_weights")
-        st.markdown("Adjust weights to bias towards model or raw distribution contrasts.")
-
     elif section_id == "api_distributions":
         st.header("API: distributions")
-
-        subheader_with_anchor(
-            "compare_feature_across_clusters", "api_distributions_compare"
-        )
+        subheader_with_anchor("compare_feature_across_clusters", "api_distributions_compare")
         st.markdown(
             dedent(
                 """
@@ -568,10 +493,7 @@ with col_main:
 
     elif section_id == "api_narratives_summaries":
         st.header("API: narratives & summaries")
-
-        subheader_with_anchor(
-            "generate_cluster_narratives", "api_narratives_generate"
-        )
+        subheader_with_anchor("generate_cluster_narratives", "api_narratives_generate")
         st.markdown(
             dedent(
                 """
@@ -585,7 +507,6 @@ with col_main:
                 """
             )
         )
-
         subheader_with_anchor("get_cluster_summary", "api_narratives_summary")
         st.markdown(
             dedent(
@@ -603,13 +524,10 @@ with col_main:
 
     elif section_id == "api_splits_exports":
         st.header("API: splits & exports")
-
         subheader_with_anchor("get_split_table", "api_splits_table")
         st.markdown("`split_tbl = ca.get_split_table()`")
-
         subheader_with_anchor("export_summary", "api_splits_export")
         st.markdown('`ca.export_summary("cluster_summary.csv")`')
-
         subheader_with_anchor("save_shap_figs", "api_splits_save_shap")
         st.markdown(
             dedent(
@@ -624,12 +542,7 @@ with col_main:
 
     elif section_id == "under_the_hood":
         st.header("Under the hood")
-        st.markdown(
-            """
-            Medians + IQR scaling for numeric contrasts, lifts + Cramér's V for categorical, OVR SHAP extraction.
-            """
-        )
-
+        st.markdown("Medians + IQR scaling, lifts + Cramér's V, OVR SHAP extraction.")
         st.markdown("---\nQuestions or ideas? Open an issue in the ClusterLens repo. 🚀")
 
 # ---------------------- RIGHT TOC COLUMN -----------------
