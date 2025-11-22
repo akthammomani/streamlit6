@@ -28,36 +28,37 @@ st.markdown(
         max-width: 1900px;
     }
 
+    /* We target ONLY the first 3 top-level columns created by st.columns */
     /* Fixed left sidebar (column 1) */
-    div[data-testid="column"]:nth-of-type(1) {
+    section.main > div > :first-child div[data-testid="column"]:nth-of-type(1) {
         position: fixed;
-        top: 3.5rem;                 /* just under Streamlit header */
+        top: 4.2rem;                 /* pushed down a bit more */
         left: 0;
-        width: 300px;                 /* wider sidebar */
-        height: calc(100vh - 3.5rem);
+        width: 300px;                /* wider sidebar */
+        height: calc(100vh - 4.2rem);
         padding: 1rem 1.5rem 2rem 1.5rem;
         border-right: 1px solid #e5e7eb;
-        background-color: #f3f4f6;    /* light grey sidebar */
+        background-color: #f3f4f6;   /* light grey sidebar */
         overflow-y: auto;
         z-index: 100;
     }
 
     /* Main content (column 2) */
-    div[data-testid="column"]:nth-of-type(2) {
-        margin-left: 300px;           /* match left sidebar width */
-        margin-right: 260px;          /* match right sidebar width */
+    section.main > div > :first-child div[data-testid="column"]:nth-of-type(2) {
+        margin-left: 300px;          /* match left sidebar width */
+        margin-right: 260px;         /* match right sidebar width */
         padding-left: 2rem;
         padding-right: 2rem;
-        padding-top: 3.5rem;
+        padding-top: 4.2rem;         /* pushed down same as sidebars */
     }
 
     /* Fixed right "On this page" sidebar (column 3) */
-    div[data-testid="column"]:nth-of-type(3) {
+    section.main > div > :first-child div[data-testid="column"]:nth-of-type(3) {
         position: fixed;
-        top: 3.5rem;
+        top: 4.2rem;
         right: 0;
-        width: 260px;                 /* right sidebar width */
-        height: calc(100vh - 3.5rem);
+        width: 260px;                /* right sidebar width */
+        height: calc(100vh - 4.2rem);
         padding: 1rem 1.5rem 2rem 1.5rem;
         border-left: 1px solid #e5e7eb;
         background-color: #ffffff;
@@ -66,13 +67,15 @@ st.markdown(
     }
 
     /* ===== Logo centering (left column) ===== */
-    div[data-testid="column"]:nth-of-type(1) img {
+    section.main > div > :first-child div[data-testid="column"]:nth-of-type(1) img {
         display: block;
         margin-left: auto;
         margin-right: auto;
+        max-width: 190px;            /* shrink the logo a bit */
     }
 
-    div[data-testid="column"]:nth-of-type(1) div[data-testid="stImage"] {
+    section.main > div > :first-child div[data-testid="column"]:nth-of-type(1)
+        div[data-testid="stImage"] {
         margin-bottom: 0.75rem;
     }
 
@@ -115,25 +118,29 @@ st.markdown(
     }
 
     /* ===== Search box styling (left column) ===== */
-    div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] {
+    section.main > div > :first-child div[data-testid="column"]:nth-of-type(1)
+        div[data-testid="stTextInput"] {
         position: relative;
         margin: 0.25rem 0 1.25rem 0;
     }
 
     /* Remove grey outer pill around the input wrapper */
-    div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] > div {
+    section.main > div > :first-child div[data-testid="column"]:nth-of-type(1)
+        div[data-testid="stTextInput"] > div {
         background-color: transparent !important;
         box-shadow: none !important;
         padding: 0 !important;
     }
 
-    /* Hide the label text of the search input */
-    div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] label {
+    /* Hide the label text of the search input (we still set a label in Python) */
+    section.main > div > :first-child div[data-testid="column"]:nth-of-type(1)
+        div[data-testid="stTextInput"] label {
         display: none;
     }
 
     /* Search input itself */
-    div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] input {
+    section.main > div > :first-child div[data-testid="column"]:nth-of-type(1)
+        div[data-testid="stTextInput"] input {
         border-radius: 999px;
         border: 1px solid #d1d5db;
         padding: 0.35rem 0.9rem 0.35rem 2rem;  /* left space for icon */
@@ -142,7 +149,8 @@ st.markdown(
     }
 
     /* Magnifying glass icon */
-    div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"]::before {
+    section.main > div > :first-child div[data-testid="column"]:nth-of-type(1)
+        div[data-testid="stTextInput"]::before {
         content: "🔍";
         position: absolute;
         left: 0.6rem;
@@ -156,19 +164,22 @@ st.markdown(
     /* ===== Docs-style nav (radio but no round dots) ===== */
 
     /* Completely hide the built-in radio label text ("Sections") */
-    div[data-testid="stRadio"] > label {
+    section.main > div > :first-child div[data-testid="column"]:nth-of-type(1)
+        div[data-testid="stRadio"] > label {
         display: none !important;
     }
 
     /* Container that holds all options */
-    div[data-testid="stRadio"] div[role="radiogroup"] {
+    section.main > div > :first-child div[data-testid="column"]:nth-of-type(1)
+        div[data-testid="stRadio"] div[role="radiogroup"] {
         display: flex;
         flex-direction: column;
         gap: 0.15rem;
     }
 
     /* Each option row */
-    div[data-testid="stRadio"] div[role="radiogroup"] > label {
+    section.main > div > :first-child div[data-testid="column"]:nth-of-type(1)
+        div[data-testid="stRadio"] div[role="radiogroup"] > label {
         padding: 4px 10px;
         border-radius: 4px;
         cursor: pointer;
@@ -178,17 +189,21 @@ st.markdown(
     }
 
     /* Hide the circular radio icon */
-    div[data-testid="stRadio"] div[role="radiogroup"] > label > div:first-child {
+    section.main > div > :first-child div[data-testid="column"]:nth-of-type(1)
+        div[data-testid="stRadio"] div[role="radiogroup"] > label > div:first-child {
         display: none !important;
     }
 
     /* Text container inside label */
-    div[data-testid="stRadio"] div[role="radiogroup"] > label > div:last-child {
+    section.main > div > :first-child div[data-testid="column"]:nth-of-type(1)
+        div[data-testid="stRadio"] div[role="radiogroup"] > label > div:last-child {
         width: 100%;
     }
 
     /* Selected state */
-    div[data-testid="stRadio"] div[role="radiogroup"] > label[data-baseweb="radio"]:has(input:checked) {
+    section.main > div > :first-child div[data-testid="column"]:nth-of-type(1)
+        div[data-testid="stRadio"] div[role="radiogroup"]
+        > label[data-baseweb="radio"]:has(input:checked) {
         background-color: #eff6ff;
         border-left: 3px solid #2563eb;
         color: #111827;
@@ -196,14 +211,15 @@ st.markdown(
     }
 
     /* Hover state */
-    div[data-testid="stRadio"] div[role="radiogroup"] > label:hover {
+    section.main > div > :first-child div[data-testid="column"]:nth-of-type(1)
+        div[data-testid="stRadio"] div[role="radiogroup"] > label:hover {
         background-color: #e5e7eb;
     }
 
     /* ===== Right "On this page" sidebar text tweaks ===== */
 
     /* Your "On this page" title (you use ###### => h6) */
-    div[data-testid="column"]:nth-of-type(3) h6 {
+    section.main > div > :first-child div[data-testid="column"]:nth-of-type(3) h6 {
         font-size: 0.85rem;
         font-weight: 600;
         text-transform: none;
@@ -212,25 +228,25 @@ st.markdown(
     }
 
     /* Bullet list inside right column */
-    div[data-testid="column"]:nth-of-type(3) ul {
+    section.main > div > :first-child div[data-testid="column"]:nth-of-type(3) ul {
         list-style-type: disc;
         padding-left: 1.1rem;
         margin: 0;                       /* no extra margin */
     }
 
-    div[data-testid="column"]:nth-of-type(3) li {
+    section.main > div > :first-child div[data-testid="column"]:nth-of-type(3) li {
         margin: 0;                       /* remove vertical gap */
         padding: 0;
         line-height: 1.1;                /* tighter line spacing */
     }
 
-    div[data-testid="column"]:nth-of-type(3) li a {
+    section.main > div > :first-child div[data-testid="column"]:nth-of-type(3) li a {
         font-size: 0.8rem;               /* smaller font for TOC items */
         text-decoration: none;
         color: #2563eb;
     }
 
-    div[data-testid="column"]:nth-of-type(3) li a:hover {
+    section.main > div > :first-child div[data-testid="column"]:nth-of-type(3) li a:hover {
         text-decoration: underline;
     }
 
@@ -394,11 +410,12 @@ with col_nav:
             unsafe_allow_html=True,
         )
 
-    # Search box
+    # Search box  (non-empty label to avoid warnings)
     query = st.text_input(
-        label="",
+        label="Search sections",
         placeholder="Search",
         label_visibility="collapsed",
+        key="section_search",
     )
 
     # Filter sections by query across label + indexed content
@@ -416,7 +433,7 @@ with col_nav:
     nav_labels = [s["label"] for s in filtered_sections]
 
     selected_label = st.radio(
-        label="",
+        label="Sections",
         options=nav_labels,
         label_visibility="collapsed",
         key="nav_radio",
@@ -756,7 +773,7 @@ with col_main:
               - categorical: Best lift + Cramér's V.
             - `"hybrid"` (default): Adds both pieces:
 
-            `score = weight_shap * SHAP_norm + weight_effect * EFFECT_norm`
+            `score = weight_shap * SHAP_norm + weight_effect * (sd_norm + d_norm + lift_norm + V_norm)`
             """
         )
 
