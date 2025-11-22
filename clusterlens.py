@@ -11,29 +11,29 @@ st.set_page_config(
     layout="wide",
 )
 
-SHOW_GITHUB_BADGE = False
+SHOW_GITHUB_BADGE = False  # toggle GitHub button
 
 # ---------------------------------------------------------
-# Global CSS: layout, fixed navs, widths
+# Global CSS: layout + styling
 # ---------------------------------------------------------
 st.markdown(
     """
     <style>
-    /* ===== Overall page width ===== */
+    /* ===== Overall page width & padding ===== */
     .block-container {
         padding-top: 0;
         padding-left: 0;
         padding-right: 0;
-        max-width: 1280px;    /* clamp the whole app width */
-        margin: 0 auto;       /* center in the browser */
+        max-width: 1800px;     /* wider, closer to local look */
+        margin: 0 auto;
     }
 
-    /* Fixed left sidebar (column 1) */
+    /* Fixed left sidebar (first column) */
     div[data-testid="column"]:nth-of-type(1) {
         position: fixed;
-        top: 3.5rem;                 /* below Streamlit header */
+        top: 3.5rem;                 /* just under Streamlit header */
         left: 0;
-        width: 260px;               /* left sidebar width */
+        width: 260px;                /* left nav width */
         height: calc(100vh - 3.5rem);
         padding: 1rem 1.5rem 2rem 1.5rem;
         border-right: 1px solid #e5e7eb;
@@ -42,27 +42,21 @@ st.markdown(
         z-index: 100;
     }
 
-    /* Main content (column 2) */
+    /* Main content (second column) */
     div[data-testid="column"]:nth-of-type(2) {
-        margin-left: 260px;          /* match left sidebar width */
-        margin-right: 260px;         /* match right sidebar width */
+        margin-left: 260px;          /* reserve space for left nav */
+        margin-right: 230px;         /* reserve space for TOC */
         padding-left: 2rem;
         padding-right: 2rem;
         padding-top: 3.5rem;
     }
 
-    /* Inner max-width for main content (keeps text like local) */
-    .main-inner {
-        max-width: 900px;            /* tweak this if you want tighter/wider */
-        margin: 0 auto;
-    }
-
-    /* Fixed right "On this page" sidebar (column 3) */
+    /* Fixed right TOC sidebar (third column) */
     div[data-testid="column"]:nth-of-type(3) {
         position: fixed;
         top: 3.5rem;
         right: 0;
-        width: 260px;
+        width: 230px;                /* right sidebar width */
         height: calc(100vh - 3.5rem);
         padding: 1rem 1.5rem 2rem 1.5rem;
         border-left: 1px solid #e5e7eb;
@@ -71,7 +65,7 @@ st.markdown(
         z-index: 100;
     }
 
-    /* ===== Logo centering in left column ===== */
+    /* Center logo in left column */
     div[data-testid="column"]:nth-of-type(1) img {
         display: block;
         margin-left: auto;
@@ -116,22 +110,30 @@ st.markdown(
         position: relative;
         margin: 0.25rem 0 1.25rem 0;
     }
-    div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] > div {
+    /* Remove outer pill */
+    div[data-testid="column"]:nth-of-type(1)
+      div[data-testid="stTextInput"] > div {
         background-color: transparent !important;
         box-shadow: none !important;
         padding: 0 !important;
     }
-    div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] label {
-        display: none; /* we still give a non-empty label in Python for accessibility */
+    /* Hide visual label (we keep it non-empty for accessibility) */
+    div[data-testid="column"]:nth-of-type(1)
+      div[data-testid="stTextInput"] label {
+        display: none;
     }
-    div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] input {
+    /* Input itself */
+    div[data-testid="column"]:nth-of-type(1)
+      div[data-testid="stTextInput"] input {
         border-radius: 999px;
         border: 1px solid #d1d5db;
         padding: 0.35rem 0.9rem 0.35rem 2rem;
         font-size: 0.9rem;
         background-color: #ffffff;
     }
-    div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"]::before {
+    /* Magnifying glass icon */
+    div[data-testid="column"]:nth-of-type(1)
+      div[data-testid="stTextInput"]::before {
         content: "🔍";
         position: absolute;
         left: 0.6rem;
@@ -142,15 +144,19 @@ st.markdown(
         pointer-events: none;
     }
 
-    /* ===== Docs-style nav radio ===== */
+    /* ===== Radio nav: make it look like docs menu ===== */
+
+    /* Hide the radio group label visually (again, keep it non-empty) */
     div[data-testid="stRadio"] > label {
-        display: none !important; /* hide label visually, not in Python */
+        display: none !important;
     }
+
     div[data-testid="stRadio"] div[role="radiogroup"] {
         display: flex;
         flex-direction: column;
         gap: 0.15rem;
     }
+
     div[data-testid="stRadio"] div[role="radiogroup"] > label {
         padding: 4px 10px;
         border-radius: 4px;
@@ -159,18 +165,21 @@ st.markdown(
         font-weight: 400;
         color: #374151;
     }
+
+    /* Hide circular radio icon */
     div[data-testid="stRadio"] div[role="radiogroup"] > label > div:first-child {
-        display: none !important; /* hide radio circle */
+        display: none !important;
     }
-    div[data-testid="stRadio"] div[role="radiogroup"] > label > div:last-child {
-        width: 100%;
-    }
-    div[data-testid="stRadio"] div[role="radiogroup"] > label[data-baseweb="radio"]:has(input:checked) {
+
+    /* Selected state */
+    div[data-testid="stRadio"] div[role="radiogroup"]
+      > label[data-baseweb="radio"]:has(input:checked) {
         background-color: #eff6ff;
         border-left: 3px solid #2563eb;
         color: #111827;
         font-weight: 600;
     }
+
     div[data-testid="stRadio"] div[role="radiogroup"] > label:hover {
         background-color: #e5e7eb;
     }
@@ -201,9 +210,30 @@ st.markdown(
         text-decoration: underline;
     }
 
-    /* headings scroll offset so anchors are visible */
-    h1, h2, h3, h4, h5, h6 { scroll-margin-top: 1.5rem; }
-    pre, code { font-size: 0.9rem !important; }
+    /* Headings scroll offset so anchors are visible */
+    h1, h2, h3, h4, h5, h6 {
+        scroll-margin-top: 1.5rem;
+    }
+
+    pre, code {
+        font-size: 0.9rem !important;
+    }
+
+    /* ===== Simple responsive fallback for narrower screens ===== */
+    @media (max-width: 1200px) {
+        div[data-testid="column"]:nth-of-type(1),
+        div[data-testid="column"]:nth-of-type(3) {
+            position: static;
+            width: 100%;
+            height: auto;
+            border: none;
+        }
+        div[data-testid="column"]:nth-of-type(2) {
+            margin-left: 0;
+            margin-right: 0;
+            padding-top: 1.5rem;
+        }
+    }
     </style>
     """,
     unsafe_allow_html=True,
@@ -214,6 +244,7 @@ st.markdown(
 # ---------------------------------------------------------
 @st.cache_data(ttl=3600)
 def get_github_stars():
+    """Fetch GitHub stars for ClusterLens once per hour."""
     url = "https://api.github.com/repos/akthammomani/ClusterLens"
     try:
         r = requests.get(url, timeout=5)
@@ -225,8 +256,10 @@ def get_github_stars():
 
 
 def subheader_with_anchor(text: str, anchor: str):
+    """Render a subheader with an HTML anchor so the TOC can link to it."""
     st.markdown(f'<div id="{anchor}"></div>', unsafe_allow_html=True)
     st.subheader(text)
+
 
 # ---------------------------------------------------------
 # Navigation model
@@ -323,9 +356,9 @@ if "active_section" not in st.session_state:
     st.session_state["active_section"] = "home"
 
 # ---------------------------------------------------------
-# Layout: three columns (fixed nav + main content + right TOC)
+# Layout: three columns
 # ---------------------------------------------------------
-col_nav, col_main, col_toc = st.columns([0.22, 0.6, 0.18])
+col_nav, col_main, col_toc = st.columns([0.2, 0.6, 0.2])
 
 # ---------------------- NAV COLUMN -----------------------
 with col_nav:
@@ -347,12 +380,10 @@ with col_nav:
             unsafe_allow_html=True,
         )
 
-    # non-empty label to avoid warnings; hidden via CSS
     query = st.text_input(
-        label="Search sections",
+        "Search sections",
         placeholder="Search",
-        label_visibility="visible",
-        key="search_box",
+        label_visibility="collapsed",   # text is still non-empty -> no warning
     )
 
     if query:
@@ -369,9 +400,9 @@ with col_nav:
     nav_labels = [s["label"] for s in filtered_sections]
 
     selected_label = st.radio(
-        label="Sections",
+        "Sections",
         options=nav_labels,
-        label_visibility="visible",
+        label_visibility="collapsed",   # again, keep non-empty but hide visually
         key="nav_radio",
     )
 
@@ -384,9 +415,6 @@ section_id = st.session_state["active_section"]
 
 # ---------------------- MAIN COLUMN ----------------------
 with col_main:
-    # wrap all content so we can clamp width via CSS
-    st.markdown('<div class="main-inner">', unsafe_allow_html=True)
-
     if section_id == "home":
         st.title("ClusterLens")
         st.write(
@@ -466,7 +494,7 @@ with col_main:
         )
         st.markdown(
             """
-            That is the minimal **happy path**:
+            Minimal happy path:
 
             - Instantiate `ClusterAnalyzer` with your `DataFrame`.
             - Call `.fit()` once to train all OVR models and cache SHAP.
@@ -530,25 +558,24 @@ with col_main:
                     model_params: Optional[dict] = None,
                     eval_max_n: Optional[int] = None,
                 )
-                ```"""
+                ```
+                """
             )
         )
         st.markdown(
             """
-            - **`cluster_col`**: Name of the column with your cluster labels.
+            - **`cluster_col`**: column with cluster labels.
             - **`encoder`**:
-              - `"onehot"`: Fast, robust, good default.
-              - `"loo"`: Target-encoding style; can be nicer for high-cardinality cats.
-              - `"catboost"`: Similar idea, different smoothing; needs `category_encoders`.
+              - `"onehot"`: fast, robust default.
+              - `"loo"` / `"catboost"`: target-style encoders for high-cardinality cats.
             - **`model_type`**:
-              - `"rf"`: `RandomForestClassifier` (default, zero-config).
-              - `"lgbm"`: LightGBM, if you install `lightgbm`.
-              - `"xgb"`: XGBoost, if you install `xgboost`.
-            - **`eval_max_n`**: Cap the number of rows used for SHAP evaluation
-              per cluster. Use this when your test set is huge and SHAP is slow.
+              - `"rf"`: `RandomForestClassifier` (default).
+              - `"lgbm"`: LightGBM (install `lightgbm`).
+              - `"xgb"`: XGBoost (install `xgboost`).
+            - **`eval_max_n`**: cap SHAP evaluation rows per cluster.
 
-            If you don't pass `num_features` / `cat_features`, ClusterLens will
-            infer them from dtypes and avoid double-counting any column.
+            If you don't pass `num_features` / `cat_features`, ClusterLens infers them
+            from dtypes and avoids double-counting any column.
             """
         )
 
@@ -563,29 +590,26 @@ with col_main:
                     sample_frac: Optional[float] = None,
                     stratify_sample: bool = True,
                 )
-                ```"""
+                ```
+                """
             )
         )
         st.markdown(
             """
-            - **`test_size`**: Fraction of rows reserved for evaluation for
-              each OVR classifier.
+            - **`test_size`**: fraction of rows reserved for evaluation.
             - **`sample_n` / `sample_frac`**:
-              - If `None`: train on the full `df`.
-              - If set: ClusterLens first **subsamples** the dataframe
-                (optionally stratified by cluster), *then* splits into train/test.
-              - Use this when your table is huge and you want fast iterations.
+              - `None`: use full dataframe.
+              - Set one of them to subsample before splitting.
             - **`stratify_sample`**:
-              - If `True` (default): preserves cluster proportions in the sample.
-              - If `False`: draws a simple random subset.
+              - `True`: keeps cluster proportions when sampling.
 
             `.fit()`:
 
-            1. Optionally subsamples the DataFrame.
-            2. Fits the chosen categorical encoder.
-            3. Builds a single stratified train/test split.
-            4. Trains **one-vs-rest** classifiers for each cluster.
-            5. Caches SHAP values for each OVR model.
+            1. Optional subsample.
+            2. Fit encoder.
+            3. One train/test split.
+            4. Train OVR models per cluster.
+            5. Cache SHAP values.
             """
         )
 
@@ -602,26 +626,19 @@ with col_main:
                     importance_scope: str = "positive",  # "positive" | "negative" | "all"
                     show: bool = True,
                 )
-                ```"""
+                ```
+                """
             )
         )
         st.markdown(
             """
-            **`importance_scope`: Which rows feed SHAP**
+            **`importance_scope`** controls which rows feed SHAP:
 
-            ClusterLens stores SHAP values for each OVR model along with the
-            binary label `y_eval_bin` (1 = belongs to the target cluster; 0 = all other rows).
+            - `"positive"` (default): only rows belonging to the cluster.
+            - `"negative"`: rows from all *other* clusters.
+            - `"all"`: full evaluation set.
 
-            - `"positive"` (default):
-              - Uses only rows where `y_eval_bin == 1`.
-              - Focuses on **why points inside the cluster** look the way they do.
-            - `"negative"`:
-              - Uses only rows where `y_eval_bin == 0` (all other clusters).
-            - `"all"`:
-              - Uses the full evaluation set.
-
-            If you are unsure: keep `"positive"` for interpretability decks, and
-            try `"negative"` / `"all"` as diagnostic lenses.
+            Use `"positive"` for narratives, `"negative"` / `"all"` for debugging.
             """
         )
 
@@ -631,14 +648,13 @@ with col_main:
                 """
                 ```python
                 stats = ca.get_cluster_classification_stats()
-                ```"""
+                ```
+                Returns one row per cluster:
+
+                - Accuracy, Precision, Recall, F1, ROC_AUC
+                - TN, FP, FN, TP
+                """
             )
-        )
-        st.markdown(
-            """
-            Returns one row per cluster with Accuracy, Precision, Recall, F1, ROC_AUC,
-            and TN / FP / FN / TP from the confusion matrix.
-            """
         )
 
         subheader_with_anchor("get_top_shap_features", "api_importance_top_feats")
@@ -650,13 +666,14 @@ with col_main:
                     top_n: Optional[int] = None,
                     importance_scope: str = "positive",
                 )
-                ```"""
+                ```
+                """
             )
         )
         st.markdown(
             """
-            Aggregates SHAP from encoded columns back to original features and returns
-            a long DataFrame with `Cluster`, `Feature`, `Abs_SHAP`.
+            Aggregates SHAP from encoded columns back to original feature names and
+            returns `Cluster`, `Feature`, `Abs_SHAP`.
             """
         )
 
@@ -678,7 +695,8 @@ with col_main:
                     weight_effect: float = 1.0,
                     min_support: float = 0.0,
                 )
-                ```"""
+                ```
+                """
             )
         )
         st.markdown(
@@ -691,28 +709,28 @@ with col_main:
         subheader_with_anchor("Modes", "api_contrastive_modes")
         st.markdown(
             """
-            - `"shap"`: only normalized SHAP magnitudes.  
+            - `"shap"`: only normalized SHAP magnitudes.
             - `"effect"`: only statistical contrasts  
-              (IQR-standardized median gaps + |Cohen's d| for numeric,
-              best lift + Cramér's V for categorical).  
-            - `"hybrid"`: weighted sum of both parts.
+              (numeric gaps in IQR units + |Cohen's d|; categorical lift + Cramér's V).
+            - `"hybrid"`: weighted sum of both.
             """
         )
 
         subheader_with_anchor("Weights", "api_contrastive_weights")
         st.markdown(
             """
-            - Increase `weight_shap` for a more model-centric view.  
-            - Increase `weight_effect` when you care more about raw distributions.  
-
-            `min_support` filters out rare categories when computing categorical lifts.
+            - Increase `weight_shap` for a more model-centric view.
+            - Increase `weight_effect` for a more distribution/statistics-centric view.
+            - `min_support` drops very rare categories when computing lifts.
             """
         )
 
     elif section_id == "api_distributions":
         st.header("API: distributions")
 
-        subheader_with_anchor("compare_feature_across_clusters", "api_distributions_compare")
+        subheader_with_anchor(
+            "compare_feature_across_clusters", "api_distributions_compare"
+        )
         st.markdown(
             dedent(
                 """
@@ -724,24 +742,27 @@ with col_main:
                     linewidth: float = 1.5,
                     alpha: float = 0.9,
                 )
-                ```"""
+                ```
+                """
             )
         )
         st.markdown(
             """
-            - With `feature=None`: faceted histograms for all numeric features.  
-            - With `feature="col"`:
-              - numeric -> overlaid step histograms (raw counts) per cluster  
-              - categorical -> stacked bar of counts per cluster.  
+            - `feature=None`: faceted histograms for all numeric features.
+            - Numeric feature: overlaid step histograms per cluster.
+            - Categorical feature: stacked bar chart (counts).
 
-            `auto_log_skew` can auto-apply `log1p` to skewed non-negative metrics.
+            `auto_log_skew` = threshold for applying `log1p` to skewed non-negative
+            features (e.g. `1.5`).
             """
         )
 
     elif section_id == "api_narratives_summaries":
         st.header("API: narratives & summaries")
 
-        subheader_with_anchor("generate_cluster_narratives", "api_narratives_generate")
+        subheader_with_anchor(
+            "generate_cluster_narratives", "api_narratives_generate"
+        )
         st.markdown(
             dedent(
                 """
@@ -751,13 +772,14 @@ with col_main:
                     min_support: float = 0.05,
                     output: str = "markdown",   # "markdown" | "dict"
                 )
-                ```"""
+                ```
+                """
             )
         )
         st.markdown(
             """
-            Produces human-readable bullets per cluster: numeric drivers, dominant
-            categories, and differences vs the nearest cluster.  
+            Produces markdown bullets per cluster: size, high/low numeric drivers,
+            dominant categories, and differences vs nearest cluster.
             """
         )
 
@@ -771,13 +793,17 @@ with col_main:
                     top_n_contrast: Optional[int] = None,
                     min_support: float = 0.05,
                 )
-                ```"""
+                ```
+                """
             )
         )
         st.markdown(
             """
-            Returns a compact table with one row per cluster (N, %, feature summaries,
-            and short contrastive strings).
+            Returns a compact table per cluster:
+
+            - `N`, `%` of dataset,
+            - per-feature summaries,
+            - short contrastive strings vs nearest cluster.
             """
         )
 
@@ -790,13 +816,14 @@ with col_main:
                 """
                 ```python
                 split_tbl = ca.get_split_table()
-                ```"""
+                ```
+                """
             )
         )
         st.markdown(
             """
-            Shows how train/test split looks per cluster: positives/rest in train vs
-            test, cluster size, and train share.
+            Shows how train/test split looks for each cluster: one vs rest counts and
+            train share.
             """
         )
 
@@ -806,10 +833,11 @@ with col_main:
                 """
                 ```python
                 ca.export_summary("cluster_summary.csv")
-                ```"""
+                ```
+                """
             )
         )
-        st.markdown("Convenience wrapper around `get_cluster_summary()`.")
+        st.markdown("Convenience wrapper around `get_cluster_summary()` that writes CSV.")
 
         subheader_with_anchor("save_shap_figs", "api_splits_save_shap")
         st.markdown(
@@ -818,28 +846,32 @@ with col_main:
                 ```python
                 ca.plot_cluster_shap(top_n=10, importance_scope="positive")
                 ca.save_shap_figs("./shap_figs")
-                ```"""
+                ```
+                """
             )
         )
         st.markdown(
-            "Saves one PNG per cluster (e.g. `shap_cluster_0.png`) for slide decks and emails."
+            """
+            Saves one SHAP PNG per cluster (e.g. `shap_cluster_0.png`) – handy for decks
+            and emails.
+            """
         )
 
     elif section_id == "under_the_hood":
         st.header("Under the hood")
         st.markdown(
             """
-            - `_nearest_cluster_centroid` uses median numeric profiles.  
-            - Numeric contrasts rely on medians + IQR-based scaling.  
-            - Categorical contrasts use lift and Cramér's V.  
-            - SHAP extraction prefers `shap.Explainer` and falls back to `TreeExplainer`.
+            - `_nearest_cluster_centroid` uses median numeric profiles.
+            - Numeric contrasts use medians + IQR-based scaling.
+            - Categorical contrasts combine lift + Cramér's V.
+            - SHAP extractor tries `shap.Explainer` then falls back to `TreeExplainer`.
+
+            The goal is a small, stable API on top of numerically honest internals.
             """
         )
         st.markdown(
             "---\nQuestions or ideas for new knobs? Open an issue in the ClusterLens repo. 🚀"
         )
-
-    st.markdown("</div>", unsafe_allow_html=True)  # end .main-inner
 
 # ---------------------- RIGHT TOC COLUMN -----------------
 with col_toc:
