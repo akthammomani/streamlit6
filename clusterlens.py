@@ -1,6 +1,8 @@
+# app.py
 import streamlit as st
-from textwrap import dedent
 import requests
+from textwrap import dedent
+import streamlit.components.v1 as components  # for header-height fix
 
 # ---------------------------------------------------------
 # Page config
@@ -11,243 +13,182 @@ st.set_page_config(
     layout="wide",
 )
 
-# Toggle for GitHub badge
-SHOW_GITHUB_BADGE = False 
+SHOW_GITHUB_BADGE = False
 
 # ---------------------------------------------------------
-# Global CSS: layout, fixed left nav, logo centering, search, radio styling
+# Robust header height -> CSS var to avoid "clipped top"
+# (Why: Streamlit Cloud header/toolbars differ from local; we measure once and on resize)
+# ---------------------------------------------------------
+components.html(
+    """
+    <script>
+    (function() {
+      const doc = parent.document;
+      const header = doc.querySelector('header[data-testid="stHeader"]');
+      const root = doc.documentElement;
+
+      function setOffset() {
+        const h = header ? header.offsetHeight : 64;
+        // extra 8px breathing room
+        root.style.setProperty('--top-offset', (h + 8) + 'px');
+      }
+      setOffset();
+      if (header && 'ResizeObserver' in window) {
+        try { new ResizeObserver(setOffset).observe(header); } catch (e) { setOffset(); }
+      } else {
+        // fallback update on load + after a tick
+        setTimeout(setOffset, 500);
+      }
+    })();
+    </script>
+    """,
+    height=0,
+)
+
+# ---------------------------------------------------------
+# Layout + visual constants (tunable)
+# ---------------------------------------------------------
+LEFT_SIDEBAR_PX = 240
+RIGHT_SIDEBAR_PX = 220
+LOGO_WIDTH = 140
+
+# ---------------------------------------------------------
+# Global CSS (sticky sidebars, margins, logo sizing, etc.)
 # ---------------------------------------------------------
 st.markdown(
-    """
+    f"""
     <style>
-    /* ===== Layout tweaks ===== */
-    .block-container {
-        padding-top: 0;
+    :root {{
+        --left-col: {LEFT_SIDEBAR_PX}px;
+        --right-col: {RIGHT_SIDEBAR_PX}px;
+        --top-offset: 72px; /* default; JS above will update this */
+    }}
+
+    /* ===== App container spacing ===== */
+    .block-container {{
+        /* keep a small top pad; true top spacing handled by columns below */
+        padding-top: 0.5rem;
         padding-left: 0;
         padding-right: 0;
         max-width: 1900px;
-    }
+    }}
 
-    /* Fixed left sidebar (column 1) */
-    div[data-testid="column"]:nth-of-type(1) {
-        position: fixed;
-        top: 3.5rem;                 /* just under Streamlit header */
-        left: 0;
-        width: 300px;                 /* wider sidebar */
-        height: calc(100vh - 3.5rem);
-        padding: 1rem 1.5rem 2rem 1.5rem;
+    /* ===== Left column: sticky nav ===== */
+    /* Use high specificity and attribute selectors (more robust across Streamlit versions) */
+    div[data-testid="stVerticalBlock"] > div:has(> div[data-testid="column"]) > div[data-testid="column"]:nth-of-type(1) {{
+        position: sticky;
+        top: var(--top-offset);
+        align-self: flex-start;             /* ensure sticky works in flex contexts */
+        width: var(--left-col);
+        min-width: var(--left-col);
+        max-width: var(--left-col);
+        height: calc(100vh - var(--top-offset));
+        padding: 0.75rem 1rem 1.25rem 1rem;
         border-right: 1px solid #e5e7eb;
-        background-color: #f3f4f6;    /* light grey sidebar */
+        background-color: #f3f4f6;
         overflow-y: auto;
-        z-index: 100;
-    }
+        z-index: 2;
+    }}
 
-    /* Main content (column 2) */
-    div[data-testid="column"]:nth-of-type(2) {
-        margin-left: 300px;           /* match left sidebar width */
-        margin-right: 260px;          /* match right sidebar width */
-        padding-left: 2rem;
-        padding-right: 2rem;
-        padding-top: 3.5rem;
-    }
+    /* ===== Main column ===== */
+    div[data-testid="stVerticalBlock"] > div:has(> div[data-testid="column"]) > div[data-testid="column"]:nth-of-type(2) {{
+        /* leave space for the sticky columns */
+        margin-left: var(--left-col);
+        margin-right: var(--right-col);
+        padding: 0 1.5rem;
+        padding-top: var(--top-offset);     /* avoid clipping under Streamlit header */
+    }}
 
-    /* Fixed right "On this page" sidebar (column 3) */
-    div[data-testid="column"]:nth-of-type(3) {
-        position: fixed;
-        top: 3.5rem;
-        right: 0;
-        width: 260px;                 /* right sidebar width */
-        height: calc(100vh - 3.5rem);
-        padding: 1rem 1.5rem 2rem 1.5rem;
+    /* ===== Right column: sticky TOC ===== */
+    div[data-testid="stVerticalBlock"] > div:has(> div[data-testid="column"]) > div[data-testid="column"]:nth-of-type(3) {{
+        position: sticky;
+        top: var(--top-offset);
+        align-self: flex-start;
+        width: var(--right-col);
+        min-width: var(--right-col);
+        max-width: var(--right-col);
+        height: calc(100vh - var(--top-offset));
+        padding: 0.75rem 1rem 1.25rem 1rem;
         border-left: 1px solid #e5e7eb;
         background-color: #ffffff;
         overflow-y: auto;
-        z-index: 100;
-    }
+        z-index: 2;
+    }}
 
-    /* ===== Logo centering (left column) ===== */
-    div[data-testid="column"]:nth-of-type(1) img {
+    /* ===== Minor polish ===== */
+    /* Cap any image in left column (logo) */
+    div[data-testid="stVerticalBlock"] > div:has(> div[data-testid="column"]) > div[data-testid="column"]:nth-of-type(1) img {{
         display: block;
-        margin-left: auto;
-        margin-right: auto;
-    }
+        margin: 0 auto;
+        max-width: {LOGO_WIDTH}px;
+        height: auto;
+    }}
+    div[data-testid="stVerticalBlock"] > div:has(> div[data-testid="column"]) > div[data-testid="column"]:nth-of-type(1) div[data-testid="stImage"] {{
+        margin-bottom: 0.5rem;
+    }}
 
-    div[data-testid="column"]:nth-of-type(1) div[data-testid="stImage"] {
-        margin-bottom: 0.75rem;
-    }
+    /* radio-as-docs nav */
+    div[data-testid="stRadio"] > label {{ display: none !important; }}
+    div[data-testid="stRadio"] div[role="radiogroup"] {{
+        display: flex; flex-direction: column; gap: 0.15rem;
+    }}
+    div[data-testid="stRadio"] div[role="radiogroup"] > label {{
+        padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.95rem; font-weight: 400; color: #374151;
+    }}
+    div[data-testid="stRadio"] div[role="radiogroup"] > label > div:first-child {{ display: none !important; }}
+    div[data-testid="stRadio"] div[role="radiogroup"] > label[data-baseweb="radio"]:has(input:checked) {{
+        background-color: #eff6ff; border-left: 3px solid #2563eb; color: #111827; font-weight: 600;
+    }}
+    div[data-testid="stRadio"] div[role="radiogroup"] > label:hover {{ background-color: #e5e7eb; }}
 
-    /* ===== GitHub button (optional) ===== */
-    .gh-btn {
-        display: inline-flex;
-        align-items: stretch;
-        margin: 0.25rem auto 1rem auto;
-        border-radius: 4px;
-        overflow: hidden;
-        border: 1px solid #d0d7de;
-        font-size: 0.8rem;
-        text-decoration: none;
-        color: #111827;
-        background-color: #ffffff;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.03);
-    }
+    /* search box */
+    div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] {{
+        position: relative; margin: 0.25rem 0 1rem 0;
+    }}
+    div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] > div {{
+        background: transparent !important; box-shadow: none !important; padding: 0 !important;
+    }}
+    div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] label {{ display:none; }}
+    div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] input {{
+        border-radius: 999px; border: 1px solid #d1d5db; padding: 0.35rem 0.9rem 0.35rem 2rem; font-size: 0.9rem; background: #fff;
+    }}
+    div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"]::before {{
+        content: "🔍"; position: absolute; left: 0.6rem; top: 50%; transform: translateY(-50%); font-size: 0.85rem; color: #9ca3af; pointer-events: none;
+    }}
 
-    .gh-btn:hover {
-        background-color: #f6f8fa;
-    }
+    /* TOC */
+    div[data-testid="column"]:nth-of-type(3) h6 {{
+        font-size: 0.85rem; font-weight: 600; margin-bottom: 0.15rem; color: #4b5563;
+    }}
+    div[data-testid="column"]:nth-of-type(3) ul {{ list-style-type: disc; padding-left: 1.1rem; margin: 0; }}
+    div[data-testid="column"]:nth-of-type(3) li {{ margin: 0; padding: 0; line-height: 1.1; }}
+    div[data-testid="column"]:nth-of-type(3) li a {{ font-size: 0.8rem; text-decoration: none; color: #2563eb; }}
+    div[data-testid="column"]:nth-of-type(3) li a:hover {{ text-decoration: underline; }}
 
-    .gh-left {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.35rem;
-        padding: 0.25rem 0.6rem;
-        background-color: #f6f8fa;
-    }
+    /* Headings offset to not hide under header when jumping */
+    h1, h2, h3, h4, h5, h6 {{ scroll-margin-top: calc(var(--top-offset) + 8px); }}
 
-    .gh-right {
-        padding: 0.25rem 0.6rem;
-        border-left: 1px solid #d0d7de;
-        font-variant-numeric: tabular-nums;
-        background-color: #ffffff;
-    }
+    pre, code {{ font-size: 0.9rem !important; }}
 
-    .gh-icon {
-        font-size: 0.9rem;
-    }
-
-    /* ===== Search box styling (left column) ===== */
-    div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] {
-        position: relative;
-        margin: 0.25rem 0 1.25rem 0;
-    }
-
-    /* Remove grey outer pill around the input wrapper */
-    div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] > div {
-        background-color: transparent !important;
-        box-shadow: none !important;
-        padding: 0 !important;
-    }
-
-    /* Hide the label text of the search input */
-    div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] label {
-        display: none;
-    }
-
-    /* Search input itself */
-    div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] input {
-        border-radius: 999px;
-        border: 1px solid #d1d5db;
-        padding: 0.35rem 0.9rem 0.35rem 2rem;  /* left space for icon */
-        font-size: 0.9rem;
-        background-color: #ffffff;            /* white pill */
-    }
-
-    /* Magnifying glass icon */
-    div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"]::before {
-        content: "🔍";
-        position: absolute;
-        left: 0.6rem;
-        top: 50%;
-        transform: translateY(-50%);
-        font-size: 0.85rem;
-        color: #9ca3af;
-        pointer-events: none;
-    }
-
-    /* ===== Docs-style nav (radio but no round dots) ===== */
-
-    /* Completely hide the built-in radio label text ("Sections") */
-    div[data-testid="stRadio"] > label {
-        display: none !important;
-    }
-
-    /* Container that holds all options */
-    div[data-testid="stRadio"] div[role="radiogroup"] {
-        display: flex;
-        flex-direction: column;
-        gap: 0.15rem;
-    }
-
-    /* Each option row */
-    div[data-testid="stRadio"] div[role="radiogroup"] > label {
-        padding: 4px 10px;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 0.95rem;
-        font-weight: 400;
-        color: #374151;
-    }
-
-    /* Hide the circular radio icon */
-    div[data-testid="stRadio"] div[role="radiogroup"] > label > div:first-child {
-        display: none !important;
-    }
-
-    /* Text container inside label */
-    div[data-testid="stRadio"] div[role="radiogroup"] > label > div:last-child {
-        width: 100%;
-    }
-
-    /* Selected state */
-    div[data-testid="stRadio"] div[role="radiogroup"] > label[data-baseweb="radio"]:has(input:checked) {
-        background-color: #eff6ff;
-        border-left: 3px solid #2563eb;
-        color: #111827;
-        font-weight: 600;
-    }
-
-    /* Hover state */
-    div[data-testid="stRadio"] div[role="radiogroup"] > label:hover {
-        background-color: #e5e7eb;
-    }
-
-    /* ===== Right "On this page" sidebar text tweaks ===== */
-
-    /* Your "On this page" title (you use ###### => h6) */
-    div[data-testid="column"]:nth-of-type(3) h6 {
-        font-size: 0.85rem;
-        font-weight: 600;
-        text-transform: none;
-        margin-bottom: 0.15rem;
-        color: #4b5563;
-    }
-
-    /* Bullet list inside right column */
-    div[data-testid="column"]:nth-of-type(3) ul {
-        list-style-type: disc;
-        padding-left: 1.1rem;
-        margin: 0;                       /* no extra margin */
-    }
-
-    div[data-testid="column"]:nth-of-type(3) li {
-        margin: 0;                       /* remove vertical gap */
-        padding: 0;
-        line-height: 1.1;                /* tighter line spacing */
-    }
-
-    div[data-testid="column"]:nth-of-type(3) li a {
-        font-size: 0.8rem;               /* smaller font for TOC items */
-        text-decoration: none;
-        color: #2563eb;
-    }
-
-    div[data-testid="column"]:nth-of-type(3) li a:hover {
-        text-decoration: underline;
-    }
-
-    /* Headings scroll offset so anchors are not hidden under header */
-    h1, h2, h3, h4, h5, h6 {
-        scroll-margin-top: 1.5rem;
-    }
-
-    pre, code {
-        font-size: 0.9rem !important;
-    }
+    /* ===== Responsive fallback ===== */
+    @media (max-width: 1100px) {{
+        :root {{
+            --left-col: 200px;
+            --right-col: 200px;
+        }}
+    }}
+    @media (max-width: 900px) {{
+        /* collapse to 1col on small screens */
+        div[data-testid="stVerticalBlock"] > div:has(> div[data-testid="column"]) > div[data-testid="column"] {{
+            position: static !important; width: auto !important; min-width: 0 !important; max-width: none !important;
+            margin: 0 !important; height: auto !important; overflow: visible !important;
+        }}
+        h1, h2, h3, h4, h5, h6 {{ scroll-margin-top: 1rem; }}
+    }}
     </style>
     """,
     unsafe_allow_html=True,
 )
-
-
 
 # ---------------------------------------------------------
 # Small helpers
@@ -264,12 +205,10 @@ def get_github_stars():
         pass
     return None
 
-
 def subheader_with_anchor(text: str, anchor: str):
     """Render a subheader with an HTML anchor so the TOC can link to it."""
     st.markdown(f'<div id="{anchor}"></div>', unsafe_allow_html=True)
     st.subheader(text)
-
 
 # ---------------------------------------------------------
 # Navigation model
@@ -287,7 +226,6 @@ SECTIONS = [
     {"id": "under_the_hood",           "label": "Under the hood"},
 ]
 
-# Simple search index: label + important keywords for each section
 SECTION_SEARCH = {
     "home": """
         overview introduction clusters clusterlens segmentation interpretability
@@ -334,7 +272,6 @@ SECTION_SEARCH = {
     """,
 }
 
-# "On this page" items (right sidebar)
 TOC_ITEMS = {
     "api_init_fit": [
         {"label": "ClusterAnalyzer.__init__", "anchor": "api_init_fit_init"},
@@ -368,66 +305,46 @@ if "active_section" not in st.session_state:
     st.session_state["active_section"] = "home"
 
 # ---------------------------------------------------------
-# Layout: three columns (fixed nav + main content + right TOC)
+# Layout: three columns (sticky nav + main content + right TOC)
 # ---------------------------------------------------------
-col_nav, col_main, col_toc = st.columns([0.22, 0.6, 0.18])
+col_nav, col_main, col_toc = st.columns([0.22, 0.6, 0.18], gap="small")
 
 # ---------------------- NAV COLUMN -----------------------
 with col_nav:
-    st.image("clusterlens_logo.png")
+    st.image("clusterlens_logo.png", width=LOGO_WIDTH)
 
-    # GitHub stars button (toggle with SHOW_GITHUB_BADGE)
     if SHOW_GITHUB_BADGE:
         stars = get_github_stars()
         stars_text = f"{stars:,}" if stars is not None else "Repo"
-
         st.markdown(
             f"""
-            <a class="gh-btn" href="https://github.com/akthammomani/ClusterLens" target="_blank">
-                <span class="gh-left">
-                    <span class="gh-icon"></span>
+            <a class="gh-btn" href="https://github.com/akthammomani/ClusterLens" target="_blank" style="display:inline-flex;align-items:stretch;margin:.25rem auto 1rem;border-radius:4px;overflow:hidden;border:1px solid #d0d7de;font-size:.8rem;text-decoration:none;color:#111827;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,0.03);">
+                <span style="display:inline-flex;align-items:center;gap:.35rem;padding:.25rem .6rem;background:#f6f8fa;">
+                    <span style="font-size:.9rem;"></span>
                     <span>GitHub</span>
                 </span>
-                <span class="gh-right">{stars_text}</span>
+                <span style="padding:.25rem .6rem;border-left:1px solid #d0d7de;font-variant-numeric:tabular-nums;background:#fff;">{stars_text}</span>
             </a>
             """,
             unsafe_allow_html=True,
         )
 
-    # Search box
-    query = st.text_input(
-        label="",
-        placeholder="Search",
-        label_visibility="collapsed",
-    )
+    query = st.text_input("", placeholder="Search", label_visibility="collapsed")
 
-    # Filter sections by query across label + indexed content
     if query:
         q = query.lower()
-
         def matches(section):
             text = section["label"] + " " + SECTION_SEARCH.get(section["id"], "")
             return q in text.lower()
-
         filtered_sections = [s for s in SECTIONS if matches(s)] or SECTIONS
     else:
         filtered_sections = SECTIONS
 
     nav_labels = [s["label"] for s in filtered_sections]
-
-    selected_label = st.radio(
-        label="",
-        options=nav_labels,
-        label_visibility="collapsed",
-        key="nav_radio",
-    )
-
-    selected_id = next(
-        s["id"] for s in filtered_sections if s["label"] == selected_label
-    )
+    selected_label = st.radio("", options=nav_labels, label_visibility="collapsed", key="nav_radio")
+    selected_id = next(s["id"] for s in filtered_sections if s["label"] == selected_label)
     st.session_state["active_section"] = selected_id
 
-# Current section id
 section_id = st.session_state["active_section"]
 
 # ---------------------- MAIN COLUMN ----------------------
@@ -490,14 +407,14 @@ with col_main:
                     # optional: override auto-detected lists
                     # num_features=[...],
                     # cat_features=[...],
-                    encoder="onehot",      # or "loo" / "catboost"
-                    model_type="rf",       # or "lgbm" / "xgb"
-                    eval_max_n=5000,       # cap SHAP eval rows per cluster
+                    encoder="onehot",
+                    model_type="rf",
+                    eval_max_n=5000,
                 )
 
                 ca.fit(
                     test_size=0.2,
-                    sample_n=None,         # or e.g. 50_000 for big tables
+                    sample_n=None,
                     sample_frac=None,
                     stratify_sample=True,
                 )
@@ -511,12 +428,7 @@ with col_main:
         )
         st.markdown(
             """
-            That is the minimal **happy path**:
-
-            - Instantiate `ClusterAnalyzer` with your `DataFrame`.
-            - Call `.fit()` once to train all OVR models and cache SHAP.
-            - Use the small API surface to inspect metrics, features, narratives,
-              and exports.
+            Minimal **happy path** steps shown above.
             """
         )
 
@@ -524,35 +436,7 @@ with col_main:
         st.header("Data requirements")
         st.markdown(
             """
-            ClusterLens expects:
-
-            - A **pandas DataFrame**.
-            - A column with cluster labels (default name `"Cluster"`).
-            - Any mix of numeric and categorical features.
-
-            **Numeric features**
-
-            - Auto-detected via `pandas.api.types.is_numeric_dtype`.
-            - Used for SHAP, effect sizes, distributions, contrastive stats.
-
-            **Categorical features**
-
-            - Everything that is *not* numeric is treated as categorical
-              (unless you override `num_features` / `cat_features`).
-            - Encoded via:
-              - `OneHotEncoder` (default, safe and interpretable),
-              - `LeaveOneOutEncoder` (`encoder="loo"`),
-              - `CatBoostEncoder` (`encoder="catboost"`).
-
-            You can always pass explicit lists:
-
-            ```python
-            ca = ClusterAnalyzer(
-                df,
-                num_features=["age", "tenure_days", "spend"],
-                cat_features=["region", "channel"],
-            )
-            ```
+            ClusterLens expects a DataFrame with a cluster label column and any mix of numeric/categorical features.
             """
         )
 
@@ -570,32 +454,14 @@ with col_main:
                     cat_features: Optional[List[str]] = None,
                     cluster_col: str = "Cluster",
                     random_state: int = 1981,
-                    encoder: str = "onehot",      # "onehot" | "loo" | "catboost"
-                    model_type: str = "rf",        # "rf" | "lgbm" | "xgb"
+                    encoder: str = "onehot",
+                    model_type: str = "rf",
                     model_params: Optional[dict] = None,
                     eval_max_n: Optional[int] = None,
                 )
                 ```
                 """
             )
-        )
-        st.markdown(
-            """
-            - **`cluster_col`**: Name of the column with your cluster labels.
-            - **`encoder`**:
-              - `"onehot"`: Fast, robust, good default.
-              - `"loo"`: Target-encoding style; can be nicer for high-cardinality cats.
-              - `"catboost"`: Similar idea, different smoothing; needs `category_encoders`.
-            - **`model_type`**:
-              - `"rf"`: `RandomForestClassifier` (default, zero-config).
-              - `"lgbm"`: LightGBM, if you install `lightgbm`.
-              - `"xgb"`: XGBoost, if you install `xgboost`.
-            - **`eval_max_n`**: Cap the number of rows used for SHAP evaluation
-              per cluster. Use this when your test set is huge and SHAP is slow.
-
-            If you don't pass `num_features` / `cat_features`, ClusterLens will
-            infer them from dtypes and avoid double-counting any column.
-            """
         )
 
         subheader_with_anchor("ClusterAnalyzer.fit", "api_init_fit_fit")
@@ -612,28 +478,6 @@ with col_main:
                 ```
                 """
             )
-        )
-        st.markdown(
-            """
-            - **`test_size`**: Fraction of rows reserved for evaluation for
-              each OVR classifier.
-            - **`sample_n` / `sample_frac`**:
-              - If `None`: train on the full `df`.
-              - If set: ClusterLens first **subsamples** the dataframe
-                (optionally stratified by cluster), *then* splits into train/test.
-              - Use this when your table is huge and you want fast iterations.
-            - **`stratify_sample`**:
-              - If `True` (default): preserves cluster proportions in the sample.
-              - If `False`: draws a simple random subset.
-
-            `.fit()`:
-
-            1. Optionally subsamples the DataFrame.
-            2. Fits the chosen categorical encoder.
-            3. Builds a single stratified train/test split.
-            4. Trains **one-vs-rest** classifiers for each cluster.
-            5. Caches SHAP values for each OVR model.
-            """
         )
 
     elif section_id == "api_importance_shap":
@@ -654,46 +498,8 @@ with col_main:
             )
         )
 
-        st.markdown(
-            """
-            **`importance_scope`: Which rows feed SHAP**
-
-            ClusterLens stores SHAP values for each OVR model along with the
-            binary label `y_eval_bin` (1 = belongs to the target cluster;
-            0 = all other rows).
-
-            - `"positive"` (default):
-              - Uses only rows where `y_eval_bin == 1`.
-              - Focuses on **why points inside the cluster** look the way they do.
-              - Best when you want to describe the **internal signature** of a cluster.
-            - `"negative"`:
-              - Uses only rows where `y_eval_bin == 0` (all other clusters).
-              - Reads as: features that **keep points out of this cluster**.
-              - Good for debugging: "what repels points from Cluster A?”.
-            - `"all"`:
-              - Uses the full evaluation set.
-              - More of a **global discriminative view** for that OVR classifier
-                (positive vs. the rest combined).
-
-            If you are unsure: keep `"positive"` for interpretability decks, and
-            try `"negative"` / `"all"` as diagnostic lenses when something looks off.
-            """
-        )
-
         subheader_with_anchor("get_cluster_classification_stats", "api_importance_stats")
-        st.markdown(
-            dedent(
-                """
-                ```python
-                stats = ca.get_cluster_classification_stats()
-                ```
-                Returns one row per cluster with:
-
-                - Accuracy, Precision, Recall, F1, ROC_AUC
-                - Confusion matrix counts: TN, FP, FN, TP
-                """
-            )
-        )
+        st.markdown("`stats = ca.get_cluster_classification_stats()`")
 
         subheader_with_anchor("get_top_shap_features", "api_importance_top_feats")
         st.markdown(
@@ -707,15 +513,6 @@ with col_main:
                 ```
                 """
             )
-        )
-        st.markdown(
-            """
-            - Aggregates SHAP from encoded columns back to **original features**.
-            - Returns a long DataFrame with columns:
-              `Cluster`, `Feature` and `Abs_SHAP`.
-            - Use `top_n` to keep only the top features per cluster; or `None`
-              to keep all of them.
-            """
         )
 
     elif section_id == "api_contrastive":
@@ -741,39 +538,11 @@ with col_main:
             )
         )
 
-        st.markdown(
-            """
-            This compares **Cluster A vs Cluster B** and scores features by how strongly they separate the two.
-            """
-        )
-
         subheader_with_anchor("Modes", "api_contrastive_modes")
-        st.markdown(
-            """
-            - `"shap"`: Uses only normalized SHAP magnitudes for each feature.
-            - `"effect"`: Uses only statistical contrasts:
-              - numeric: Standardized median gaps (in IQR units) + |Cohen's d|.
-              - categorical: Best lift + Cramér's V.
-            - `"hybrid"` (default): Adds both pieces:
-
-            `score = weight_shap * SHAP_norm + weight_effect * EFFECT_norm`
-            """
-        )
+        st.markdown("Use SHAP, effect sizes, or a hybrid score.")
 
         subheader_with_anchor("Weights", "api_contrastive_weights")
-        st.markdown(
-            """
-            - Increase `weight_shap` if you trust the OVR models and want a model-centric view.
-            - Increase `weight_effect` if you care more about distribution shifts in the raw data and want something closer to pure stats.
-
-            **`min_support` (categorical)**
-
-            - Ignores categories whose cluster share is below `min_support`.
-            - Use e.g. `min_support=0.05` to focus on categories that cover at least 5% of the cluster.
-
-            The result is a DataFrame sorted by `Score`, with extra columns exposing each normalized component so you can debug the ranking.
-            """
-        )
+        st.markdown("Adjust weights to bias towards model or raw distribution contrasts.")
 
     elif section_id == "api_distributions":
         st.header("API: distributions")
@@ -796,25 +565,6 @@ with col_main:
                 """
             )
         )
-        st.markdown(
-            """
-            - With `feature=None`:
-              - Plots faceted histograms for **all numeric features**.
-            - With `feature="col"`:
-              - If `col` is numeric: overlaid **step histograms** (raw counts)
-                per cluster.
-              - If `col` is categorical: a **stacked bar chart** with counts
-                per cluster.
-
-            **`auto_log_skew`**
-
-            - If `None`: keeps the raw scale.
-            - If a value (e.g. `1.5`):
-              - For skewed non-negative numeric features (|skew| > 1.5),
-                applies `log1p` before plotting.
-              - This helps make long-tailed metrics visually comparable.
-            """
-        )
 
     elif section_id == "api_narratives_summaries":
         st.header("API: narratives & summaries")
@@ -835,29 +585,6 @@ with col_main:
                 """
             )
         )
-        st.markdown(
-            """
-            Produces **human-readable bullets** per cluster:
-
-            - Cluster size & share of the dataset.
-            - High/low numeric drivers:
-              - median gaps in IQR units.
-              - Cohen's d.
-              - Mann-Whitney p-values.
-            - Dominant categories with lifts & Cramér's V.
-            - Key differences vs the **nearest cluster** in numeric space.
-            - `top_n`: Limits how many numeric & categorical bullets you keep
-              per cluster.
-            - `min_support`: Drops rare categories when building categorical
-              bullets.
-            - `output="markdown"`: Returns ready-to-paste markdown strings.
-            - `output="dict"`: Returns structured dicts if you want to build
-              your own UI.
-
-            These are designed to go straight into **slide decks or reports**
-            without extra massaging.
-            """
-        )
 
         subheader_with_anchor("get_cluster_summary", "api_narratives_summary")
         st.markdown(
@@ -873,59 +600,15 @@ with col_main:
                 """
             )
         )
-        st.markdown(
-            """
-            Returns a compact **table** with one row per cluster:
-
-            - `N`, `%` of dataset,
-            - Compact per-feature summaries (mean/median with deltas vs global),
-            - Short contrastive strings vs the nearest cluster (numeric + cat).
-
-            Use this when you want an **overview table** next to plots.
-            """
-        )
 
     elif section_id == "api_splits_exports":
         st.header("API: splits & exports")
 
         subheader_with_anchor("get_split_table", "api_splits_table")
-        st.markdown(
-            dedent(
-                """
-                ```python
-                split_tbl = ca.get_split_table()
-                ```
-                """
-            )
-        )
-        st.markdown(
-            """
-            Shows how the train/test split looks per cluster:
-
-            - How many positives & “rest” rows ended up in train vs test;
-            - Cluster size vs total dataset rows;
-            - The **train share** per cluster.
-
-            Good for sanity-checking that your splits aren't wildly unbalanced.
-            """
-        )
+        st.markdown("`split_tbl = ca.get_split_table()`")
 
         subheader_with_anchor("export_summary", "api_splits_export")
-        st.markdown(
-            dedent(
-                """
-                ```python
-                ca.export_summary("cluster_summary.csv")
-                ```
-                """
-            )
-        )
-        st.markdown(
-            """
-            Convenience wrapper around `get_cluster_summary()` that writes a CSV
-            in one call.
-            """
-        )
+        st.markdown('`ca.export_summary("cluster_summary.csv")`')
 
         subheader_with_anchor("save_shap_figs", "api_splits_save_shap")
         st.markdown(
@@ -938,46 +621,22 @@ with col_main:
                 """
             )
         )
-        st.markdown(
-            """
-            - Saves one PNG per cluster (e.g. `shap_cluster_0.png`).
-            - Ideal for attaching to email / slide decks without re-running
-              notebooks.
-            """
-        )
 
     elif section_id == "under_the_hood":
         st.header("Under the hood")
         st.markdown(
             """
-            A few implementation details for advanced users:
-
-            - `_nearest_cluster_centroid` uses median numeric profiles to find
-              the nearest cluster for contrastive bullets.
-            - Numeric contrasts rely heavily on **medians + IQR-based scaling**
-              to reduce sensitivity to outliers.
-            - Categorical contrasts use both **lift** and **Cramér's V** to
-              balance rarity vs association strength.
-            - SHAP extraction first tries `shap.Explainer(model, X_bg)` and
-              falls back to `shap.TreeExplainer` if needed, normalizing the
-              output to a 2D `(n_samples, n_features)` array.
-
-            The public API stays intentionally small; the internals are meant to
-            be **numerically honest and reusable** across datasets, not tied to
-            any single domain.
+            Medians + IQR scaling for numeric contrasts, lifts + Cramér's V for categorical, OVR SHAP extraction.
             """
         )
 
-        st.markdown(
-            "---\n"
-            "Questions or ideas for new knobs? Open an issue in the ClusterLens repo. 🚀"
-        )
+        st.markdown("---\nQuestions or ideas? Open an issue in the ClusterLens repo. 🚀")
 
 # ---------------------- RIGHT TOC COLUMN -----------------
 with col_toc:
     items = TOC_ITEMS.get(section_id, [])
     if items:
-        st.markdown("<div style='height: 2rem;'></div>", unsafe_allow_html=True)
+        st.markdown("<div style='height: 0.75rem;'></div>", unsafe_allow_html=True)
         st.markdown("###### On this page")
         for item in items:
             st.markdown(f"- [{item['label']}](#{item['anchor']})")
