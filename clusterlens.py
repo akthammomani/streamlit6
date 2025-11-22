@@ -28,51 +28,60 @@ st.markdown(
         max-width: 1900px;
     }
 
-    /* Fixed left sidebar (column 1) */
-    div[data-testid="column"]:nth-of-type(1) {
+    /*
+      IMPORTANT:
+      We scope to the FIRST set of columns in the main area so we only
+      touch your 3 main columns (nav, content, TOC), not any nested columns.
+    */
+
+    /* ==== Fixed left sidebar (column 1) ==== */
+    section.main > div > :first-child div[data-testid="column"]:nth-of-type(1) {
         position: fixed;
-        top: 3.5rem;                 /* just under Streamlit header */
+        top: 4.2rem;                 /* push down a bit more to avoid clipping */
         left: 0;
-        width: 300px;                 /* wider sidebar */
-        height: calc(100vh - 3.5rem);
-        padding: 1rem 1.5rem 2rem 1.5rem;
+        width: 240px;                /* narrower sidebar */
+        height: calc(100vh - 4.2rem);
+        padding: 1rem 1.25rem 2rem 1.25rem;
         border-right: 1px solid #e5e7eb;
-        background-color: #f3f4f6;    /* light grey sidebar */
+        background-color: #f3f4f6;   /* light grey sidebar */
         overflow-y: auto;
         z-index: 100;
     }
 
-    /* Main content (column 2) */
-    div[data-testid="column"]:nth-of-type(2) {
-        margin-left: 300px;           /* match left sidebar width */
-        margin-right: 260px;          /* match right sidebar width */
+    /* ==== Main content (column 2) ==== */
+    section.main > div > :first-child div[data-testid="column"]:nth-of-type(2) {
+        margin-left: 240px;          /* match left sidebar width */
+        margin-right: 220px;         /* match right sidebar width */
         padding-left: 2rem;
         padding-right: 2rem;
-        padding-top: 3.5rem;
+        padding-top: 4.2rem;         /* same offset as sidebars */
     }
 
-    /* Fixed right "On this page" sidebar (column 3) */
-    div[data-testid="column"]:nth-of-type(3) {
+    /* ==== Fixed right "On this page" sidebar (column 3) ==== */
+    section.main > div > :first-child div[data-testid="column"]:nth-of-type(3) {
         position: fixed;
-        top: 3.5rem;
+        top: 4.2rem;
         right: 0;
-        width: 260px;                 /* right sidebar width */
-        height: calc(100vh - 3.5rem);
-        padding: 1rem 1.5rem 2rem 1.5rem;
+        width: 220px;                /* narrower right sidebar */
+        height: calc(100vh - 4.2rem);
+        padding: 1rem 1.25rem 2rem 1.25rem;
         border-left: 1px solid #e5e7eb;
         background-color: #ffffff;
         overflow-y: auto;
         z-index: 100;
     }
 
-    /* ===== Logo centering (left column) ===== */
-    div[data-testid="column"]:nth-of-type(1) img {
+    /* ===== Logo centering & size (left column) ===== */
+    section.main > div > :first-child
+      div[data-testid="column"]:nth-of-type(1) img {
         display: block;
         margin-left: auto;
         margin-right: auto;
+        max-width: 180px;            /* smaller logo */
     }
 
-    div[data-testid="column"]:nth-of-type(1) div[data-testid="stImage"] {
+    section.main > div > :first-child
+      div[data-testid="column"]:nth-of-type(1) div[data-testid="stImage"] {
         margin-bottom: 0.75rem;
     }
 
@@ -115,25 +124,29 @@ st.markdown(
     }
 
     /* ===== Search box styling (left column) ===== */
-    div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] {
+    section.main > div > :first-child
+      div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] {
         position: relative;
         margin: 0.25rem 0 1.25rem 0;
     }
 
     /* Remove grey outer pill around the input wrapper */
-    div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] > div {
+    section.main > div > :first-child
+      div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] > div {
         background-color: transparent !important;
         box-shadow: none !important;
         padding: 0 !important;
     }
 
     /* Hide the label text of the search input */
-    div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] label {
+    section.main > div > :first-child
+      div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] label {
         display: none;
     }
 
     /* Search input itself */
-    div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] input {
+    section.main > div > :first-child
+      div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] input {
         border-radius: 999px;
         border: 1px solid #d1d5db;
         padding: 0.35rem 0.9rem 0.35rem 2rem;  /* left space for icon */
@@ -142,7 +155,8 @@ st.markdown(
     }
 
     /* Magnifying glass icon */
-    div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"]::before {
+    section.main > div > :first-child
+      div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"]::before {
         content: "🔍";
         position: absolute;
         left: 0.6rem;
@@ -154,6 +168,7 @@ st.markdown(
     }
 
     /* ===== Docs-style nav (radio but no round dots) ===== */
+    /* (kept exactly the same behaviour you had) */
 
     /* Completely hide the built-in radio label text ("Sections") */
     div[data-testid="stRadio"] > label {
@@ -188,7 +203,8 @@ st.markdown(
     }
 
     /* Selected state */
-    div[data-testid="stRadio"] div[role="radiogroup"] > label[data-baseweb="radio"]:has(input:checked) {
+    div[data-testid="stRadio"] div[role="radiogroup"]
+      > label[data-baseweb="radio"]:has(input:checked) {
         background-color: #eff6ff;
         border-left: 3px solid #2563eb;
         color: #111827;
@@ -201,9 +217,8 @@ st.markdown(
     }
 
     /* ===== Right "On this page" sidebar text tweaks ===== */
-
-    /* Your "On this page" title (you use ###### => h6) */
-    div[data-testid="column"]:nth-of-type(3) h6 {
+    section.main > div > :first-child
+      div[data-testid="column"]:nth-of-type(3) h6 {
         font-size: 0.85rem;
         font-weight: 600;
         text-transform: none;
@@ -211,32 +226,35 @@ st.markdown(
         color: #4b5563;
     }
 
-    /* Bullet list inside right column */
-    div[data-testid="column"]:nth-of-type(3) ul {
+    section.main > div > :first-child
+      div[data-testid="column"]:nth-of-type(3) ul {
         list-style-type: disc;
         padding-left: 1.1rem;
-        margin: 0;                       /* no extra margin */
+        margin: 0;
     }
 
-    div[data-testid="column"]:nth-of-type(3) li {
-        margin: 0;                       /* remove vertical gap */
+    section.main > div > :first-child
+      div[data-testid="column"]:nth-of-type(3) li {
+        margin: 0;
         padding: 0;
-        line-height: 1.1;                /* tighter line spacing */
+        line-height: 1.1;
     }
 
-    div[data-testid="column"]:nth-of-type(3) li a {
-        font-size: 0.8rem;               /* smaller font for TOC items */
+    section.main > div > :first-child
+      div[data-testid="column"]:nth-of-type(3) li a {
+        font-size: 0.8rem;
         text-decoration: none;
         color: #2563eb;
     }
 
-    div[data-testid="column"]:nth-of-type(3) li a:hover {
+    section.main > div > :first-child
+      div[data-testid="column"]:nth-of-type(3) li a:hover {
         text-decoration: underline;
     }
 
     /* Headings scroll offset so anchors are not hidden under header */
     h1, h2, h3, h4, h5, h6 {
-        scroll-margin-top: 1.5rem;
+        scroll-margin-top: 2.0rem;
     }
 
     pre, code {
@@ -981,3 +999,4 @@ with col_toc:
         st.markdown("###### On this page")
         for item in items:
             st.markdown(f"- [{item['label']}](#{item['anchor']})")
+
