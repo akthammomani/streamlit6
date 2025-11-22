@@ -826,3 +826,4 @@ with col_toc:
             for item in TOC_ITEMS[section_id]
         )
         st.markdown(toc_list, unsafe_allow_html=True)
+
