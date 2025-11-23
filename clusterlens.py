@@ -20,92 +20,66 @@ SHOW_GITHUB_BADGE = True
 st.markdown(
     """
     <style>
-    /* ================== GLOBAL LAYOUT ================== */
-
-    /* Use the full viewport and stop the whole page from scrolling.
-       We will scroll ONLY the middle column. */
-    html, body {
-        height: 100%;
-        overflow: hidden;
-    }
-
-    [data-testid="stAppViewContainer"] {
-        height: 100vh;
-        overflow: hidden;
-    }
+    /* ================== BASE CONTAINER ================== */
 
     .block-container {
-        padding-top: 0.8rem;    /* push everything a bit down (fix clipping) */
+        padding-top: 1.4rem;      /* push everything down – fixes clipping */
         padding-left: 0;
         padding-right: 0;
         max-width: 1900px;
-        height: 100%;
     }
 
-    /* Grab the 3 columns from your first st.columns(...) call */
-    .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(1),
-    .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(2),
-    .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(3) {
-        height: calc(100vh - 1.2rem);   /* full height minus top padding */
-    }
+    /* ================== LEFT SIDEBAR ================== */
 
-    /* ================== FIXED LEFT SIDEBAR ================== */
-
+    /* First column: narrow + sticky */
     .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(1) {
-        position: fixed;
-        top: 0.8rem;
-        left: 0;
-        width: 220px;                     /* narrower sidebar */
+        max-width: 230px;                      /* narrower sidebar */
+        flex: 0 0 230px;
+        position: sticky;
+        top: 1rem;                             /* distance from top while scrolling */
+        align-self: flex-start;
         padding: 0.75rem 1.1rem 1.5rem 1.1rem;
         border-right: 1px solid #e5e7eb;
         background-color: #f3f4f6;
-        overflow-y: auto;                 /* its own scroll if needed */
-        z-index: 100;
+        max-height: calc(100vh - 1.8rem);      /* allow its own scroll if long */
+        overflow-y: auto;
+        z-index: 50;
     }
 
-    /* ================== SCROLLING MIDDLE CONTENT ================== */
+    /* ================== MAIN COLUMN ================== */
 
     .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(2) {
-        position: fixed;
-        top: 0.8rem;
-        left: 220px;                      /* match left sidebar width */
-        right: 210px;                     /* match right sidebar width */
-        padding: 0.75rem 1.75rem 1.5rem 1.75rem;
-        overflow-y: auto;                 /* ONLY this column scrolls */
-        background-color: #ffffff;
+        padding: 0.75rem 1.75rem 2rem 1.75rem;
     }
 
-    /* ================== FIXED RIGHT SIDEBAR ================== */
+    /* ================== RIGHT SIDEBAR ================== */
 
     .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(3) {
-        position: fixed;
-        top: 0.8rem;
-        right: 0;
-        width: 210px;
+        max-width: 230px;
+        flex: 0 0 230px;
+        position: sticky;
+        top: 1rem;
+        align-self: flex-start;
         padding: 0.75rem 1.1rem 1.5rem 1.1rem;
         border-left: 1px solid #e5e7eb;
         background-color: #ffffff;
+        max-height: calc(100vh - 1.8rem);
         overflow-y: auto;
-        z-index: 100;
+        z-index: 50;
     }
 
-    /* ================== LOGO (SIZE + CENTER) ================== */
+    /* ================== LOGO SIZE + CENTER ================== */
 
-    .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(1)
-      div[data-testid="stImage"] img {
+    /* Wrapper we’ll add around the logo */
+    .cl-logo-wrap img {
         display: block;
-        margin: 0 auto 0.7rem auto;   /* center + small bottom gap */
+        margin: 0 auto 0.7rem auto;   /* center + gap */
         max-width: 170px;             /* smaller logo */
         height: auto;
     }
 
-    /* keep small gap under image wrapper */
-    .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(1)
-      div[data-testid="stImage"] {
-        margin-bottom: 0.4rem;
-    }
-
     /* ================== GITHUB BUTTON ================== */
+
     .gh-btn {
         display: inline-flex;
         align-items: stretch;
@@ -119,9 +93,7 @@ st.markdown(
         background-color: #ffffff;
         box-shadow: 0 1px 2px rgba(0,0,0,0.03);
     }
-    .gh-btn:hover {
-        background-color: #f6f8fa;
-    }
+    .gh-btn:hover { background-color: #f6f8fa; }
     .gh-left {
         display: inline-flex;
         align-items: center;
@@ -137,7 +109,8 @@ st.markdown(
     }
     .gh-icon { font-size: 0.9rem; }
 
-    /* ===== Search box styling (left column) – unchanged ===== */
+    /* ========== SEARCH BOX (same behavior, scoped to left col) ========== */
+
     .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(1)
       div[data-testid="stTextInput"] {
         position: relative;
@@ -177,7 +150,8 @@ st.markdown(
         pointer-events: none;
     }
 
-    /* ===== Radio styling – left as-is (your buttons) ===== */
+    /* ===== Radio styling (left menu) – kept the same ===== */
+
     div[data-testid="stRadio"] > label {
         display: none !important;
     }
@@ -207,7 +181,8 @@ st.markdown(
         background-color: #e5e7eb;
     }
 
-    /* ===== Right "On this page" sidebar text tweaks – unchanged ===== */
+    /* ===== Right TOC text ===== */
+
     .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(3) h6 {
         font-size: 0.85rem;
         font-weight: 600;
@@ -233,7 +208,7 @@ st.markdown(
         text-decoration: underline;
     }
 
-    /* Headings offset so anchors aren’t hidden */
+    /* Headings offset so anchor links don't hide under top padding */
     h1, h2, h3, h4, h5, h6 {
         scroll-margin-top: 1.8rem;
     }
@@ -374,9 +349,9 @@ col_nav, col_main, col_toc = st.columns([0.16, 0.6, 0.18])
 
 # ---------------------- NAV COLUMN -----------------------
 with col_nav:
-    st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
-    st.image("clusterlens_logo.png") #, width=240)
-    st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown('<div class="cl-logo-wrap">', unsafe_allow_html=True)
+    st.image("clusterlens_logo.png")   # no width; CSS handles max-width
+    st.markdown('</div>', unsafe_allow_html=True)
 
     # GitHub stars button (toggle with SHOW_GITHUB_BADGE)
     if SHOW_GITHUB_BADGE:
@@ -385,17 +360,18 @@ with col_nav:
 
         st.markdown(
             f"""
-            <a class="gh-btn" href="https://github.com/akthammomani/ClusterLens" target="_blank">
-                <span class="gh-left">
-                    <span class="gh-icon"></span>
-                    <span>GitHub</span>
-                </span>
-                <span class="gh-right">{stars_text}</span>
-            </a>
+            <div style="text-align:center;">
+              <a class="gh-btn" href="https://github.com/akthammomani/ClusterLens" target="_blank">
+                  <span class="gh-left">
+                      <span class="gh-icon"></span>
+                      <span>GitHub</span>
+                  </span>
+                  <span class="gh-right">{stars_text}</span>
+              </a>
+            </div>
             """,
             unsafe_allow_html=True,
         )
-
     # Search box
     query = st.text_input(
         label="Search sections", 
@@ -983,6 +959,7 @@ with col_toc:
         st.markdown("###### On this page")
         for item in items:
             st.markdown(f"- [{item['label']}](#{item['anchor']})")
+
 
 
 
