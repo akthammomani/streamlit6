@@ -392,7 +392,7 @@ col_nav, col_main, col_toc = st.columns([0.22, 0.6, 0.18])
 
 # ---------------------- NAV COLUMN -----------------------
 with col_nav:
-    st.image("clusterlens_logo.png", width=350)
+    st.image("clusterlens_logo.png") #, width=350)
 
     # GitHub stars button (toggle with SHOW_GITHUB_BADGE)
     if SHOW_GITHUB_BADGE:
@@ -999,6 +999,7 @@ with col_toc:
         st.markdown("###### On this page")
         for item in items:
             st.markdown(f"- [{item['label']}](#{item['anchor']})")
+
 
 
 
