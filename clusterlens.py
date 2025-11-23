@@ -15,75 +15,77 @@ st.set_page_config(
 SHOW_GITHUB_BADGE = True
 
 # ---------------------------------------------------------
-# Global CSS: layout, scrolling, logo, search, radio styling
+# Global CSS: fixed left/right, scrolling middle
 # ---------------------------------------------------------
 st.markdown(
     """
     <style>
-    /* --------- stop page scroll, use viewport height --------- */
+    /* === Global page: no window scroll, we will scroll only the center === */
     html, body {
         height: 100%;
         margin: 0;
-        overflow: hidden;              /* only inner areas can scroll */
+        overflow: hidden;              /* disable browser scrollbar */
     }
 
-    /* --------- main Streamlit container --------- */
     .block-container {
         padding-top: 1.4rem;           /* fix clipping from top */
         padding-left: 0;
         padding-right: 0;
         max-width: 1900px;
-        height: 100vh;                 /* fill full browser height */
-        box-sizing: border-box;
     }
 
-    /* first row that holds the 3 columns -> make it a flex row */
-    .block-container > div:nth-of-type(1) {
-        display: flex;
-        height: 100%;
-    }
-
-    /* --------- LEFT SIDEBAR (col 1) --------- */
-    .block-container > div:nth-of-type(1)
-      > div[data-testid="column"]:nth-of-type(1) {
-        max-width: 230px;
-        flex: 0 0 230px;
+    /* === FIXED LEFT NAV === */
+    .left-nav {
+        position: fixed;
+        top: 1.4rem;                   /* align with padding-top above */
+        left: 0;
+        width: 230px;
+        bottom: 0;                     /* full height */
         padding: 0.75rem 1.1rem 1.5rem 1.1rem;
         border-right: 1px solid #e5e7eb;
         background-color: #f3f4f6;
-        overflow-y: auto;              /* its own scroll if long */
+        overflow-y: auto;              /* its own scroll if needed */
+        z-index: 50;
+        box-sizing: border-box;
     }
 
-    /* --------- MAIN CONTENT (col 2) --------- */
-    .block-container > div:nth-of-type(1)
-      > div[data-testid="column"]:nth-of-type(2) {
-        flex: 1 1 auto;
+    /* === SCROLLING MIDDLE CONTENT === */
+    .main-wrapper {
+        position: fixed;
+        top: 1.4rem;
+        left: 230px;                   /* same as left-nav width */
+        right: 230px;                  /* same as right-toc width */
+        bottom: 0;
         padding: 0.75rem 1.75rem 2rem 1.75rem;
-        overflow-y: auto;              /* <-- this is the main scroll */
+        overflow-y: auto;              /* <-- ONLY this scrolls */
+        box-sizing: border-box;
+        background: white;
     }
 
-    /* --------- RIGHT SIDEBAR / TOC (col 3) --------- */
-    .block-container > div:nth-of-type(1)
-      > div[data-testid="column"]:nth-of-type(3) {
-        max-width: 230px;
-        flex: 0 0 230px;
+    /* === FIXED RIGHT TOC === */
+    .right-toc {
+        position: fixed;
+        top: 1.4rem;
+        right: 0;
+        width: 230px;
+        bottom: 0;
         padding: 0.75rem 1.1rem 1.5rem 1.1rem;
         border-left: 1px solid #e5e7eb;
         background-color: #ffffff;
-        overflow-y: auto;              /* own scroll if long */
+        overflow-y: auto;
+        z-index: 50;
+        box-sizing: border-box;
     }
 
-    /* --------- LOGO size + centering in left column --------- */
-    .block-container > div:nth-of-type(1)
-      > div[data-testid="column"]:nth-of-type(1)
-      div[data-testid="stImage"] img {
+    /* === Logo size + centering in left nav === */
+    .left-nav div[data-testid="stImage"] img {
         display: block;
         margin: 0 auto 0.7rem auto;
-        max-width: 150px;              /* change this to grow/shrink logo */
+        max-width: 150px;
         height: auto;
     }
 
-    /* --------- GitHub button --------- */
+    /* === GitHub button === */
     .gh-btn {
         display: inline-flex;
         align-items: stretch;
@@ -113,41 +115,27 @@ st.markdown(
     }
     .gh-icon { font-size: 0.9rem; }
 
-    /* --------- SEARCH BOX (left column only) --------- */
-    .block-container > div:nth-of-type(1)
-      > div[data-testid="column"]:nth-of-type(1)
-      div[data-testid="stTextInput"] {
+    /* === Search box (left nav only) === */
+    .left-nav div[data-testid="stTextInput"] {
         position: relative;
         margin: 0.25rem 0 1.25rem 0;
     }
-
-    .block-container > div:nth-of-type(1)
-      > div[data-testid="column"]:nth-of-type(1)
-      div[data-testid="stTextInput"] > div {
+    .left-nav div[data-testid="stTextInput"] > div {
         background-color: transparent !important;
         box-shadow: none !important;
         padding: 0 !important;
     }
-
-    .block-container > div:nth-of-type(1)
-      > div[data-testid="column"]:nth-of-type(1)
-      div[data-testid="stTextInput"] label {
+    .left-nav div[data-testid="stTextInput"] label {
         display: none;
     }
-
-    .block-container > div:nth-of-type(1)
-      > div[data-testid="column"]:nth-of-type(1)
-      div[data-testid="stTextInput"] input {
+    .left-nav div[data-testid="stTextInput"] input {
         border-radius: 999px;
         border: 1px solid #d1d5db;
         padding: 0.35rem 0.9rem 0.35rem 2rem;
         font-size: 0.9rem;
         background-color: #ffffff;
     }
-
-    .block-container > div:nth-of-type(1)
-      > div[data-testid="column"]:nth-of-type(1)
-      div[data-testid="stTextInput"]::before {
+    .left-nav div[data-testid="stTextInput"]::before {
         content: "🔍";
         position: absolute;
         left: 0.6rem;
@@ -158,16 +146,16 @@ st.markdown(
         pointer-events: none;
     }
 
-    /* --------- Radio styling (left menu) --------- */
-    div[data-testid="stRadio"] > label {
+    /* === Radio styling (left menu) === */
+    .left-nav div[data-testid="stRadio"] > label {
         display: none !important;
     }
-    div[data-testid="stRadio"] div[role="radiogroup"] {
+    .left-nav div[data-testid="stRadio"] div[role="radiogroup"] {
         display: flex;
         flex-direction: column;
         gap: 0.15rem;
     }
-    div[data-testid="stRadio"] div[role="radiogroup"] > label {
+    .left-nav div[data-testid="stRadio"] div[role="radiogroup"] > label {
         padding: 4px 10px;
         border-radius: 4px;
         cursor: pointer;
@@ -175,58 +163,65 @@ st.markdown(
         font-weight: 400;
         color: #374151;
     }
-    div[data-testid="stRadio"] div[role="radiogroup"] > label > div:first-child {
+    .left-nav div[data-testid="stRadio"] div[role="radiogroup"] > label > div:first-child {
         display: none !important;
     }
-    div[data-testid="stRadio"] div[role="radiogroup"]
+    .left-nav div[data-testid="stRadio"] div[role="radiogroup"]
       > label[data-baseweb="radio"]:has(input:checked) {
         background-color: #eff6ff;
         border-left: 3px solid #2563eb;
         color: #111827;
         font-weight: 600;
     }
-    div[data-testid="stRadio"] div[role="radiogroup"] > label:hover {
+    .left-nav div[data-testid="stRadio"] div[role="radiogroup"] > label:hover {
         background-color: #e5e7eb;
     }
 
-    /* --------- Right TOC text (col 3) --------- */
-    .block-container > div:nth-of-type(1)
-      > div[data-testid="column"]:nth-of-type(3) h6 {
+    /* === Right TOC text === */
+    .right-toc h6 {
         font-size: 0.85rem;
         font-weight: 600;
         margin-bottom: 0.15rem;
         color: #4b5563;
     }
-    .block-container > div:nth-of-type(1)
-      > div[data-testid="column"]:nth-of-type(3) ul {
+    .right-toc ul {
         list-style-type: disc;
         padding-left: 1.1rem;
         margin: 0;
     }
-    .block-container > div:nth-of-type(1)
-      > div[data-testid="column"]:nth-of-type(3) li {
+    .right-toc li {
         margin: 0;
         padding: 0;
         line-height: 1.1;
     }
-    .block-container > div:nth-of-type(1)
-      > div[data-testid="column"]:nth-of-type(3) li a {
+    .right-toc li a {
         font-size: 0.8rem;
         text-decoration: none;
         color: #2563eb;
     }
-    .block-container > div:nth-of-type(1)
-      > div[data-testid="column"]:nth-of-type(3) li a:hover {
+    .right-toc li a:hover {
         text-decoration: underline;
     }
 
-    /* Headings offset so anchor links don't hide under top padding */
+    /* Headings offset so anchor links don't hide under the top padding */
     h1, h2, h3, h4, h5, h6 {
         scroll-margin-top: 1.8rem;
     }
 
     pre, code {
         font-size: 0.9rem !important;
+    }
+
+    /* Basic fallback for very narrow screens: let page scroll normally */
+    @media (max-width: 900px) {
+        html, body {
+            overflow: auto;
+        }
+        .left-nav, .right-toc, .main-wrapper {
+            position: static;
+            width: auto;
+            height: auto;
+        }
     }
     </style>
     """,
@@ -254,7 +249,6 @@ def subheader_with_anchor(text: str, anchor: str):
     st.markdown(f'<div id="{anchor}"></div>', unsafe_allow_html=True)
     st.subheader(text)
 
-
 # ---------------------------------------------------------
 # Navigation model
 # ---------------------------------------------------------
@@ -271,7 +265,6 @@ SECTIONS = [
     {"id": "under_the_hood",           "label": "Under the hood"},
 ]
 
-# Simple search index: label + important keywords for each section
 SECTION_SEARCH = {
     "home": """
         overview introduction clusters clusterlens segmentation interpretability
@@ -318,7 +311,6 @@ SECTION_SEARCH = {
     """,
 }
 
-# "On this page" items (right sidebar)
 TOC_ITEMS = {
     "api_init_fit": [
         {"label": "ClusterAnalyzer.__init__", "anchor": "api_init_fit_init"},
@@ -352,22 +344,19 @@ if "active_section" not in st.session_state:
     st.session_state["active_section"] = "home"
 
 # ---------------------------------------------------------
-# Layout: three columns (nav + main content + right TOC)
+# Layout: three logical columns (we'll position them via CSS)
 # ---------------------------------------------------------
 col_nav, col_main, col_toc = st.columns([0.16, 0.6, 0.18])
 
 # ---------------------- NAV COLUMN -----------------------
 with col_nav:
-    # Logo
-    st.markdown('<div class="cl-logo-wrap">', unsafe_allow_html=True)
-    st.image("clusterlens_logo.png")
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('<div class="left-nav">', unsafe_allow_html=True)
 
-    # GitHub stars button (toggle with SHOW_GITHUB_BADGE)
+    st.image("clusterlens_logo.png")
+
     if SHOW_GITHUB_BADGE:
         stars = get_github_stars()
         stars_text = f"{stars:,}" if stars is not None else "Repo"
-
         st.markdown(
             f"""
             <div style="text-align:center;">
@@ -383,14 +372,12 @@ with col_nav:
             unsafe_allow_html=True,
         )
 
-    # Search box
     query = st.text_input(
         label="Search sections",
         placeholder="Search",
         label_visibility="collapsed",
     )
 
-    # Filter sections by query across label + indexed content
     if query:
         q = query.lower()
 
@@ -416,11 +403,14 @@ with col_nav:
     )
     st.session_state["active_section"] = selected_id
 
-# Current section id
+    st.markdown("</div>", unsafe_allow_html=True)  # close .left-nav
+
 section_id = st.session_state["active_section"]
 
 # ---------------------- MAIN COLUMN ----------------------
 with col_main:
+    st.markdown('<div class="main-wrapper">', unsafe_allow_html=True)
+
     if section_id == "home":
         st.title("ClusterLens")
         st.write(
@@ -962,11 +952,17 @@ with col_main:
             "Questions or ideas for new knobs? Open an issue in the ClusterLens repo. 🚀"
         )
 
+    st.markdown("</div>", unsafe_allow_html=True)  # close .main-wrapper
+
 # ---------------------- RIGHT TOC COLUMN -----------------
 with col_toc:
+    st.markdown('<div class="right-toc">', unsafe_allow_html=True)
+
     items = TOC_ITEMS.get(section_id, [])
     if items:
         st.markdown("<div style='height: 2rem;'></div>", unsafe_allow_html=True)
         st.markdown("###### On this page")
         for item in items:
             st.markdown(f"- [{item['label']}](#{item['anchor']})")
+
+    st.markdown("</div>", unsafe_allow_html=True)  # close .right-toc
