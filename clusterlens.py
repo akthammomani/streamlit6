@@ -20,90 +20,60 @@ SHOW_GITHUB_BADGE = True
 st.markdown(
     """
     <style>
-    /* ================== LOCK THE PAGE SCROLL ================== */
+    /* ================== BASE LAYOUT ================== */
 
-    html, body {
-        height: 100%;
-        margin: 0;
-        overflow: hidden;   /* ← stop window scroll */
-    }
-
-    /* Streamlit main view container */
-    div[data-testid="stAppViewContainer"] {
-        height: 100vh;
-        overflow: hidden;   /* no scroll on outer container */
-    }
-
-    /* Main content container */
     .block-container {
         padding-top: 1.4rem;      /* fixes clipping from top */
         padding-left: 0;
         padding-right: 0;
         max-width: 1900px;
-        height: 100%;             /* fill the view container */
-        box-sizing: border-box;
     }
 
-    /* Row that holds the three columns */
-    .block-container > div:nth-of-type(1) {
-        height: 100%;             /* make the row fill height */
-        display: flex;            /* ensure columns stretch vertically */
-    }
+    /* ================== FIXED LEFT SIDEBAR ================== */
 
-    /* ================== LEFT SIDEBAR ================== */
-
-    .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(1) {
-        max-width: 230px;                      
-        flex: 0 0 230px;
-        /* position: sticky;  sticky not needed once page doesn't scroll */
-        /* top: 1rem; */
-        align-self: stretch;
+    .left-nav {
+        position: fixed;
+        top: 1.4rem;                              /* aligns with padding-top */
+        left: 0;
+        width: 230px;                             /* sidebar width */
+        height: calc(100vh - 1.4rem);             /* full height under top pad */
         padding: 0.75rem 1.1rem 1.5rem 1.1rem;
         border-right: 1px solid #e5e7eb;
         background-color: #f3f4f6;
-        height: 100%;             /* full height */
-        overflow-y: auto;         /* if left menu is long, it scrolls inside itself */
-        z-index: 50;
+        overflow-y: auto;                         /* own scroll if long */
+        z-index: 100;
     }
 
-    /* ================== MAIN COLUMN ================== */
+    /* ================== MAIN CONTENT ================== */
 
-    .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(2) {
+    .main-wrapper {
+        margin-left: 230px;                       /* same as left width */
+        margin-right: 230px;                      /* same as right width */
         padding: 0.75rem 1.75rem 2rem 1.75rem;
-        height: 100%;             /* full height to host inner scroller */
         box-sizing: border-box;
     }
 
-    /* Inner scroll area: ONLY the middle part scrolls */
-    .block-container > div:nth-of-type(1)
-      > div[data-testid="column"]:nth-of-type(2) .main-scroll {
-        height: 100%;
-        overflow-y: auto;         /* ← main docs scroll here */
-        padding-right: 0.5rem;
-    }
+    /* ================== FIXED RIGHT SIDEBAR ================== */
 
-    /* ================== RIGHT SIDEBAR ================== */
-
-    .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(3) {
-        max-width: 230px;
-        flex: 0 0 230px;
-        /* position: sticky;
-        top: 1rem; */
-        align-self: stretch;
+    .right-toc {
+        position: fixed;
+        top: 1.4rem;
+        right: 0;
+        width: 230px;
+        height: calc(100vh - 1.4rem);
         padding: 0.75rem 1.1rem 1.5rem 1.1rem;
         border-left: 1px solid #e5e7eb;
         background-color: #ffffff;
-        height: 100%;             /* full height */
-        overflow-y: auto;         /* if TOC is long, scroll inside itself */
-        z-index: 50;
+        overflow-y: auto;
+        z-index: 100;
     }
 
     /* ================== LOGO SIZE + CENTER ================== */
 
     .cl-logo-wrap img {
         display: block;
-        margin: 0 auto 0.7rem auto;
-        max-width: 170px;         /* smaller logo; tweak as you like */
+        margin: 0 auto 0.7rem auto;   /* center + gap */
+        max-width: 150px;             /* smaller logo */
         height: auto;
     }
 
@@ -138,28 +108,24 @@ st.markdown(
     }
     .gh-icon { font-size: 0.9rem; }
 
-    /* ========== SEARCH BOX (same behavior, scoped to left col) ========== */
+    /* ========== SEARCH BOX (scoped to left sidebar) ========== */
 
-    .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(1)
-      div[data-testid="stTextInput"] {
+    .left-nav div[data-testid="stTextInput"] {
         position: relative;
         margin: 0.25rem 0 1.25rem 0;
     }
 
-    .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(1)
-      div[data-testid="stTextInput"] > div {
+    .left-nav div[data-testid="stTextInput"] > div {
         background-color: transparent !important;
         box-shadow: none !important;
         padding: 0 !important;
     }
 
-    .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(1)
-      div[data-testid="stTextInput"] label {
+    .left-nav div[data-testid="stTextInput"] label {
         display: none;
     }
 
-    .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(1)
-      div[data-testid="stTextInput"] input {
+    .left-nav div[data-testid="stTextInput"] input {
         border-radius: 999px;
         border: 1px solid #d1d5db;
         padding: 0.35rem 0.9rem 0.35rem 2rem;
@@ -167,8 +133,7 @@ st.markdown(
         background-color: #ffffff;
     }
 
-    .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(1)
-      div[data-testid="stTextInput"]::before {
+    .left-nav div[data-testid="stTextInput"]::before {
         content: "🔍";
         position: absolute;
         left: 0.6rem;
@@ -179,17 +144,17 @@ st.markdown(
         pointer-events: none;
     }
 
-    /* ===== Radio styling (left menu) – same as yours ===== */
+    /* ===== Radio styling (left menu) – same as yours, but scoped ===== */
 
-    div[data-testid="stRadio"] > label {
+    .left-nav div[data-testid="stRadio"] > label {
         display: none !important;
     }
-    div[data-testid="stRadio"] div[role="radiogroup"] {
+    .left-nav div[data-testid="stRadio"] div[role="radiogroup"] {
         display: flex;
         flex-direction: column;
         gap: 0.15rem;
     }
-    div[data-testid="stRadio"] div[role="radiogroup"] > label {
+    .left-nav div[data-testid="stRadio"] div[role="radiogroup"] > label {
         padding: 4px 10px;
         border-radius: 4px;
         cursor: pointer;
@@ -197,47 +162,47 @@ st.markdown(
         font-weight: 400;
         color: #374151;
     }
-    div[data-testid="stRadio"] div[role="radiogroup"] > label > div:first-child {
+    .left-nav div[data-testid="stRadio"] div[role="radiogroup"] > label > div:first-child {
         display: none !important;
     }
-    div[data-testid="stRadio"] div[role="radiogroup"] > label[data-baseweb="radio"]:has(input:checked) {
+    .left-nav div[data-testid="stRadio"] div[role="radiogroup"] > label[data-baseweb="radio"]:has(input:checked) {
         background-color: #eff6ff;
         border-left: 3px solid #2563eb;
         color: #111827;
         font-weight: 600;
     }
-    div[data-testid="stRadio"] div[role="radiogroup"] > label:hover {
+    .left-nav div[data-testid="stRadio"] div[role="radiogroup"] > label:hover {
         background-color: #e5e7eb;
     }
 
     /* ===== Right TOC text ===== */
 
-    .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(3) h6 {
+    .right-toc h6 {
         font-size: 0.85rem;
         font-weight: 600;
         margin-bottom: 0.15rem;
         color: #4b5563;
     }
-    .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(3) ul {
+    .right-toc ul {
         list-style-type: disc;
         padding-left: 1.1rem;
         margin: 0;
     }
-    .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(3) li {
+    .right-toc li {
         margin: 0;
         padding: 0;
         line-height: 1.1;
     }
-    .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(3) li a {
+    .right-toc li a {
         font-size: 0.8rem;
         text-decoration: none;
         color: #2563eb;
     }
-    .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(3) li a:hover {
+    .right-toc li a:hover {
         text-decoration: underline;
     }
 
-    /* Headings offset so anchor links don't hide under top padding */
+    /* Headings offset so anchor links don't hide under the top padding */
     h1, h2, h3, h4, h5, h6 {
         scroll-margin-top: 1.8rem;
     }
@@ -381,6 +346,8 @@ col_nav, col_main, col_toc = st.columns([0.16, 0.6, 0.18])
 
 # ---------------------- NAV COLUMN -----------------------
 with col_nav:
+    st.markdown('<div class="left-nav">', unsafe_allow_html=True)
+    
     st.markdown('<div class="cl-logo-wrap">', unsafe_allow_html=True)
     st.image("clusterlens_logo.png")   # no width; CSS handles max-width
     st.markdown('</div>', unsafe_allow_html=True)
@@ -442,7 +409,7 @@ section_id = st.session_state["active_section"]
 
 # ---------------------- MAIN COLUMN ----------------------
 with col_main:
-    st.markdown('<div class="main-scroll">', unsafe_allow_html=True)
+    st.markdown('<div class="main-wrapper">', unsafe_allow_html=True)
     if section_id == "home":
         st.title("ClusterLens")
         st.write(
@@ -988,12 +955,15 @@ with col_main:
 
 # ---------------------- RIGHT TOC COLUMN -----------------
 with col_toc:
+    st.markdown('<div class="right-toc">', unsafe_allow_html=True)
+    
     items = TOC_ITEMS.get(section_id, [])
     if items:
         st.markdown("<div style='height: 2rem;'></div>", unsafe_allow_html=True)
         st.markdown("###### On this page")
         for item in items:
             st.markdown(f"- [{item['label']}](#{item['anchor']})")
+
 
 
 
