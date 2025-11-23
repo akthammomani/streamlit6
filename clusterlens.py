@@ -12,7 +12,7 @@ st.set_page_config(
     layout="wide",
 )
 
-SHOW_GITHUB_BADGE = True
+SHOW_GITHUB_BADGE = False
 
 # ---------------------------------------------------------
 # Global CSS
@@ -985,3 +985,4 @@ with col_toc:
             st.markdown(f"- [{item['label']}](#{item['anchor']})")
 
     st.markdown("</div>", unsafe_allow_html=True)  # CLOSE right-toc
+
