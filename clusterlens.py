@@ -12,7 +12,7 @@ st.set_page_config(
 )
 
 # Toggle for GitHub badge
-SHOW_GITHUB_BADGE = False 
+SHOW_GITHUB_BADGE = True 
 
 # ---------------------------------------------------------
 # Global CSS: layout, fixed left nav, logo centering, search, radio styling
@@ -1001,6 +1001,7 @@ with col_toc:
         st.markdown("###### On this page")
         for item in items:
             st.markdown(f"- [{item['label']}](#{item['anchor']})")
+
 
 
 
