@@ -414,7 +414,7 @@ with col_nav:
 
     # Search box
     query = st.text_input(
-        label="",
+        label="Search sections", 
         placeholder="Search",
         label_visibility="collapsed",
     )
@@ -434,7 +434,7 @@ with col_nav:
     nav_labels = [s["label"] for s in filtered_sections]
 
     selected_label = st.radio(
-        label="",
+        label="Sections", 
         options=nav_labels,
         label_visibility="collapsed",
         key="nav_radio",
@@ -999,5 +999,6 @@ with col_toc:
         st.markdown("###### On this page")
         for item in items:
             st.markdown(f"- [{item['label']}](#{item['anchor']})")
+
 
 
