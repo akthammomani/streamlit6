@@ -19,84 +19,42 @@ SHOW_GITHUB_BADGE = True
 st.markdown(
     """
     <style>
-    /* ---------- 1) Stop outer app from scrolling ---------- */
-
-    html, body {
-        height: 100%;
-        margin: 0;
-        overflow: hidden;  /* disable browser/page scroll */
-    }
-
-    /* Streamlit main scroll container – also disable scroll here */
-    [data-testid="stAppViewContainer"] > .main {
-        height: 100vh;
-        overflow: hidden;
-    }
-
-    /* ---------- 2) Block container & first row ---------- */
+    /* ---------- Base layout ---------- */
 
     .block-container {
         padding-top: 1.4rem;   /* fix clipping from top */
         padding-left: 0;
         padding-right: 0;
         max-width: 1900px;
-        height: 100%;          /* fill the .main height */
-        box-sizing: border-box;
     }
 
-    /* First direct child (where st.columns are rendered) */
+    /* Make the first row (where the three columns live) align to top */
     .block-container > div:nth-of-type(1) {
-        display: flex;
-        height: 100%;          /* make the row full-height */
+        align-items: flex-start;
     }
 
-    /* ---------- 3) Columns: only middle scrolls ---------- */
+    /* ---------- Left nav: sticky sidebar ---------- */
 
-    /* LEFT column (no scroll; stays fixed visually) */
-    .block-container > div:nth-of-type(1)
-      > div[data-testid="column"]:nth-of-type(1) {
-        max-width: 230px;
-        flex: 0 0 230px;
+    .left-nav {
+        position: sticky;
+        top: 0.75rem;                          /* distance from top */
+        align-self: flex-start;
+        max-height: calc(100vh - 1.5rem);      /* viewport height minus padding */
         padding: 0.75rem 1.1rem 1.5rem 1.1rem;
         border-right: 1px solid #e5e7eb;
         background-color: #f3f4f6;
-        overflow-y: hidden;      /* IMPORTANT: no scroll */
-        height: 100%;
+        overflow-y: auto;                      /* its own scroll if too tall */
     }
 
-    /* MIDDLE column (this is the ONLY scrollable area) */
-    .block-container > div:nth-of-type(1)
-      > div[data-testid="column"]:nth-of-type(2) {
-        flex: 1 1 auto;
-        padding: 0.75rem 1.75rem 2rem 1.75rem;
-        overflow-y: auto;        /* IMPORTANT: main scroll */
-        height: 100%;
-    }
-
-    /* RIGHT column (no scroll; stays fixed visually) */
-    .block-container > div:nth-of-type(1)
-      > div[data-testid="column"]:nth-of-type(3) {
-        max-width: 230px;
-        flex: 0 0 230px;
-        padding: 0.75rem 1.1rem 1.5rem 1.1rem;
-        border-left: 1px solid #e5e7eb;
-        background-color: #ffffff;
-        overflow-y: hidden;      /* IMPORTANT: no scroll */
-        height: 100%;
-    }
-
-    /* ---------- 4) Logo size / position ---------- */
-
-    .block-container > div:nth-of-type(1)
-      > div[data-testid="column"]:nth-of-type(1)
-      div[data-testid="stImage"] img {
+    /* Logo inside left nav */
+    .left-nav div[data-testid="stImage"] img {
         display: block;
         margin: 0 auto 0.7rem auto;
-        max-width: 150px;
+        max-width: 150px;  /* adjust logo size */
         height: auto;
     }
 
-    /* ---------- 5) GitHub button ---------- */
+    /* ---------- GitHub button ---------- */
 
     .gh-btn {
         display: inline-flex;
@@ -127,32 +85,24 @@ st.markdown(
     }
     .gh-icon { font-size: 0.9rem; }
 
-    /* ---------- 6) Search box in left col ---------- */
+    /* ---------- Search box in left nav ---------- */
 
-    .block-container > div:nth-of-type(1)
-      > div[data-testid="column"]:nth-of-type(1)
-      div[data-testid="stTextInput"] {
+    .left-nav div[data-testid="stTextInput"] {
         position: relative;
         margin: 0.25rem 0 1.25rem 0;
     }
 
-    .block-container > div:nth-of-type(1)
-      > div[data-testid="column"]:nth-of-type(1)
-      div[data-testid="stTextInput"] > div {
+    .left-nav div[data-testid="stTextInput"] > div {
         background-color: transparent !important;
         box-shadow: none !important;
         padding: 0 !important;
     }
 
-    .block-container > div:nth-of-type(1)
-      > div[data-testid="column"]:nth-of-type(1)
-      div[data-testid="stTextInput"] label {
+    .left-nav div[data-testid="stTextInput"] label {
         display: none;
     }
 
-    .block-container > div:nth-of-type(1)
-      > div[data-testid="column"]:nth-of-type(1)
-      div[data-testid="stTextInput"] input {
+    .left-nav div[data-testid="stTextInput"] input {
         border-radius: 999px;
         border: 1px solid #d1d5db;
         padding: 0.35rem 0.9rem 0.35rem 2rem;
@@ -160,9 +110,7 @@ st.markdown(
         background-color: #ffffff;
     }
 
-    .block-container > div:nth-of-type(1)
-      > div[data-testid="column"]:nth-of-type(1)
-      div[data-testid="stTextInput"]::before {
+    .left-nav div[data-testid="stTextInput"]::before {
         content: "🔍";
         position: absolute;
         left: 0.6rem;
@@ -173,17 +121,19 @@ st.markdown(
         pointer-events: none;
     }
 
-    /* ---------- 7) Radio styling ---------- */
+    /* ---------- Radio styling (nav sections) ---------- */
 
-    div[data-testid="stRadio"] > label {
+    .left-nav div[data-testid="stRadio"] > label {
         display: none !important;
     }
-    div[data-testid="stRadio"] div[role="radiogroup"] {
+
+    .left-nav div[data-testid="stRadio"] div[role="radiogroup"] {
         display: flex;
         flex-direction: column;
         gap: 0.15rem;
     }
-    div[data-testid="stRadio"] div[role="radiogroup"] > label {
+
+    .left-nav div[data-testid="stRadio"] div[role="radiogroup"] > label {
         padding: 4px 10px;
         border-radius: 4px;
         cursor: pointer;
@@ -191,53 +141,63 @@ st.markdown(
         font-weight: 400;
         color: #374151;
     }
-    div[data-testid="stRadio"] div[role="radiogroup"] > label > div:first-child {
-        display: none !important;
+
+    .left-nav div[data-testid="stRadio"] div[role="radiogroup"] > label > div:first-child {
+        display: none !important;  /* hide bullet circle */
     }
-    div[data-testid="stRadio"] div[role="radiogroup"]
+
+    .left-nav div[data-testid="stRadio"] div[role="radiogroup"]
       > label[data-baseweb="radio"]:has(input:checked) {
         background-color: #eff6ff;
         border-left: 3px solid #2563eb;
         color: #111827;
         font-weight: 600;
     }
-    div[data-testid="stRadio"] div[role="radiogroup"] > label:hover {
+
+    .left-nav div[data-testid="stRadio"] div[role="radiogroup"] > label:hover {
         background-color: #e5e7eb;
     }
 
-    /* ---------- 8) Right TOC text ---------- */
+    /* ---------- Right TOC: sticky sidebar ---------- */
 
-    .block-container > div:nth-of-type(1)
-      > div[data-testid="column"]:nth-of-type(3) h6 {
+    .right-toc {
+        position: sticky;
+        top: 0.75rem;
+        align-self: flex-start;
+        max-height: calc(100vh - 1.5rem);
+        padding: 0.75rem 1.1rem 1.5rem 1.1rem;
+        border-left: 1px solid #e5e7eb;
+        background-color: #ffffff;
+        overflow-y: auto;
+    }
+
+    .right-toc h6 {
         font-size: 0.85rem;
         font-weight: 600;
         margin-bottom: 0.15rem;
         color: #4b5563;
     }
-    .block-container > div:nth-of-type(1)
-      > div[data-testid="column"]:nth-of-type(3) ul {
+    .right-toc ul {
         list-style-type: disc;
         padding-left: 1.1rem;
         margin: 0;
     }
-    .block-container > div:nth-of-type(1)
-      > div[data-testid="column"]:nth-of-type(3) li {
+    .right-toc li {
         margin: 0;
         padding: 0;
         line-height: 1.1;
     }
-    .block-container > div:nth-of-type(1)
-      > div[data-testid="column"]:nth-of-type(3) li a {
+    .right-toc li a {
         font-size: 0.8rem;
         text-decoration: none;
         color: #2563eb;
     }
-    .block-container > div:nth-of-type(1)
-      > div[data-testid="column"]:nth-of-type(3) li a:hover {
+    .right-toc li a:hover {
         text-decoration: underline;
     }
 
-    /* Offset headings for anchor links */
+    /* ---------- Misc ---------- */
+
     h1, h2, h3, h4, h5, h6 {
         scroll-margin-top: 1.8rem;
     }
@@ -984,3 +944,4 @@ with col_toc:
             st.markdown(f"- [{item['label']}](#{item['anchor']})")
 
     st.markdown("</div>", unsafe_allow_html=True)  # CLOSE right-toc
+
