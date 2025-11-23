@@ -284,7 +284,7 @@ SECTIONS = [
     {"id": "api_distributions",        "label": "API: distributions"},
     {"id": "api_narratives_summaries", "label": "API: narratives & summaries"},
     {"id": "api_splits_exports",       "label": "API: splits & exports"},
-    {"id": "under_the_hood",           "label": "Under the hood"},
+    {"id": "under_the_hood",           "label": "How it works"},
 ]
 
 SECTION_SEARCH = {
@@ -332,8 +332,8 @@ SECTION_SEARCH = {
         train test splits summary csv
     """,
     "under_the_hood": """
-        nearest_cluster_centroid medians IQR shap.Explainer TreeExplainer
-        effect sizes Cramér V
+        how it works internals implementation nearest_cluster_centroid
+        medians IQR shap.Explainer TreeExplainer effect sizes Cramer V
     """,
 }
 
@@ -1050,7 +1050,7 @@ with col_main:
         )
 
     elif section_id == "under_the_hood":
-        st.header("Under the hood")
+        st.header("How it works")
         st.markdown(
             """
             A few implementation details for advanced users:
@@ -1088,3 +1088,4 @@ with col_toc:
             st.markdown(f"- [{item['label']}](#{item['anchor']})")
 
     st.markdown("</div>", unsafe_allow_html=True)  # CLOSE right-toc
+
