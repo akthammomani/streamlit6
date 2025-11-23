@@ -20,36 +20,49 @@ SHOW_GITHUB_BADGE = True
 st.markdown(
     """
     <style>
-    /* ================== BASE CONTAINER ================== */
+    /* ================== LOCK THE PAGE SCROLL ================== */
 
-    html, body {                      /* NEW: make page height well-defined */
+    html, body {
         height: 100%;
         margin: 0;
+        overflow: hidden;   /* ← stop window scroll */
     }
 
+    /* Streamlit main view container */
+    div[data-testid="stAppViewContainer"] {
+        height: 100vh;
+        overflow: hidden;   /* no scroll on outer container */
+    }
+
+    /* Main content container */
     .block-container {
-        padding-top: 1.4rem;          /* push everything down – fixes clipping */
+        padding-top: 1.4rem;      /* fixes clipping from top */
         padding-left: 0;
         padding-right: 0;
         max-width: 1900px;
-        height: calc(100vh - 1.4rem); /* NEW: keep app within viewport */
-        box-sizing: border-box;       /* NEW */
+        height: 100%;             /* fill the view container */
+        box-sizing: border-box;
+    }
+
+    /* Row that holds the three columns */
+    .block-container > div:nth-of-type(1) {
+        height: 100%;             /* make the row fill height */
+        display: flex;            /* ensure columns stretch vertically */
     }
 
     /* ================== LEFT SIDEBAR ================== */
 
-    /* First column: narrow + sticky */
     .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(1) {
         max-width: 230px;                      
         flex: 0 0 230px;
-        position: sticky;
-        top: 1rem;
-        align-self: flex-start;
+        /* position: sticky;  sticky not needed once page doesn't scroll */
+        /* top: 1rem; */
+        align-self: stretch;
         padding: 0.75rem 1.1rem 1.5rem 1.1rem;
         border-right: 1px solid #e5e7eb;
         background-color: #f3f4f6;
-        max-height: 100%;               /* CHANGED: fill container height */
-        overflow-y: auto;
+        height: 100%;             /* full height */
+        overflow-y: auto;         /* if left menu is long, it scrolls inside itself */
         z-index: 50;
     }
 
@@ -57,16 +70,16 @@ st.markdown(
 
     .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(2) {
         padding: 0.75rem 1.75rem 2rem 1.75rem;
-        height: 100%;                   /* NEW: full height to host inner scroller */
-        box-sizing: border-box;         /* NEW */
+        height: 100%;             /* full height to host inner scroller */
+        box-sizing: border-box;
     }
 
-    /* Inner scroll area **only in the middle column** */
+    /* Inner scroll area: ONLY the middle part scrolls */
     .block-container > div:nth-of-type(1)
-      > div[data-testid="column"]:nth-of-type(2) .main-scroll {   /* NEW */
-        height: 100%;                   /* use the column height */
-        overflow-y: auto;               /* <-- ONLY this scrolls */
-        padding-right: 0.5rem;          /* avoid clipped content at right edge */
+      > div[data-testid="column"]:nth-of-type(2) .main-scroll {
+        height: 100%;
+        overflow-y: auto;         /* ← main docs scroll here */
+        padding-right: 0.5rem;
     }
 
     /* ================== RIGHT SIDEBAR ================== */
@@ -74,14 +87,14 @@ st.markdown(
     .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(3) {
         max-width: 230px;
         flex: 0 0 230px;
-        position: sticky;
-        top: 1rem;
-        align-self: flex-start;
+        /* position: sticky;
+        top: 1rem; */
+        align-self: stretch;
         padding: 0.75rem 1.1rem 1.5rem 1.1rem;
         border-left: 1px solid #e5e7eb;
         background-color: #ffffff;
-        max-height: 100%;               /* CHANGED */
-        overflow-y: auto;
+        height: 100%;             /* full height */
+        overflow-y: auto;         /* if TOC is long, scroll inside itself */
         z-index: 50;
     }
 
@@ -90,7 +103,7 @@ st.markdown(
     .cl-logo-wrap img {
         display: block;
         margin: 0 auto 0.7rem auto;
-        max-width: 170px;               /* smaller logo; adjust if needed */
+        max-width: 170px;         /* smaller logo; tweak as you like */
         height: auto;
     }
 
@@ -166,7 +179,7 @@ st.markdown(
         pointer-events: none;
     }
 
-    /* ===== Radio styling (left menu) – kept the same ===== */
+    /* ===== Radio styling (left menu) – same as yours ===== */
 
     div[data-testid="stRadio"] > label {
         display: none !important;
@@ -236,6 +249,7 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+
 
 
 
@@ -980,6 +994,7 @@ with col_toc:
         st.markdown("###### On this page")
         for item in items:
             st.markdown(f"- [{item['label']}](#{item['anchor']})")
+
 
 
 
