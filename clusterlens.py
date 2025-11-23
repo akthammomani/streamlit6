@@ -20,65 +20,89 @@ SHOW_GITHUB_BADGE = True
 st.markdown(
     """
     <style>
-    /* ================== BASE CONTAINER ================== */
+    /* ================= GLOBAL ================= */
+
+    html, body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;                /* only middle column will scroll */
+    }
 
     .block-container {
-        padding-top: 1.4rem;      /* push everything down – fixes clipping */
+        padding-top: 0;
         padding-left: 0;
         padding-right: 0;
         max-width: 1900px;
     }
 
-    /* ================== LEFT SIDEBAR ================== */
+    /* Make sure the row that holds the 3 columns is positioned */
+    .block-container > div:first-child {
+        position: relative;
+    }
 
-    /* First column: narrow + sticky */
-    .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(1) {
-        max-width: 230px;                      /* narrower sidebar */
-        flex: 0 0 230px;
-        position: sticky;
-        top: 1rem;                             /* distance from top while scrolling */
-        align-self: flex-start;
+    /* Shared top offset for all three columns (avoid clipping) */
+    :root {
+        --cl-top: 3.5rem;                /* space under Streamlit header */
+        --cl-left-width: 220px;          /* LEFT sidebar width  */
+        --cl-right-width: 220px;         /* RIGHT sidebar width */
+    }
+
+    /* ================= LEFT SIDEBAR (fixed) ================= */
+
+    .block-container > div:first-child
+      > div[data-testid="column"]:nth-of-type(1) {
+        position: fixed;
+        top: var(--cl-top);
+        left: 0;
+        width: var(--cl-left-width);
+        height: calc(100vh - var(--cl-top));
         padding: 0.75rem 1.1rem 1.5rem 1.1rem;
         border-right: 1px solid #e5e7eb;
         background-color: #f3f4f6;
-        max-height: calc(100vh - 1.8rem);      /* allow its own scroll if long */
-        overflow-y: auto;
-        z-index: 50;
+        overflow-y: auto;                /* its own scroll if needed */
+        z-index: 100;
     }
 
-    /* ================== MAIN COLUMN ================== */
-
-    .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(2) {
-        padding: 0.75rem 1.75rem 2rem 1.75rem;
-    }
-
-    /* ================== RIGHT SIDEBAR ================== */
-
-    .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(3) {
-        max-width: 230px;
-        flex: 0 0 230px;
-        position: sticky;
-        top: 1rem;
-        align-self: flex-start;
-        padding: 0.75rem 1.1rem 1.5rem 1.1rem;
-        border-left: 1px solid #e5e7eb;
-        background-color: #ffffff;
-        max-height: calc(100vh - 1.8rem);
-        overflow-y: auto;
-        z-index: 50;
-    }
-
-    /* ================== LOGO SIZE + CENTER ================== */
-
-    /* Wrapper we’ll add around the logo */
-    .cl-logo-wrap img {
+    /* Logo: smaller + centered */
+    .block-container > div:first-child
+      > div[data-testid="column"]:nth-of-type(1) div[data-testid="stImage"] img {
         display: block;
-        margin: 0 auto 0.7rem auto;   /* center + gap */
-        max-width: 170px;             /* smaller logo */
+        margin: 0 auto 0.75rem auto;
+        max-width: 160px;                /* adjust size here */
         height: auto;
     }
 
-    /* ================== GITHUB BUTTON ================== */
+    /* ================= MIDDLE COLUMN (scroll area) ================= */
+
+    .block-container > div:first-child
+      > div[data-testid="column"]:nth-of-type(2) {
+        position: fixed;
+        top: var(--cl-top);
+        left: var(--cl-left-width);
+        right: var(--cl-right-width);
+        height: calc(100vh - var(--cl-top));
+        padding: 0.75rem 1.8rem 1.8rem 1.8rem;
+        overflow-y: auto;                /* ONLY this column scrolls */
+        z-index: 50;
+    }
+
+    /* ================= RIGHT SIDEBAR (fixed) ================= */
+
+    .block-container > div:first-child
+      > div[data-testid="column"]:nth-of-type(3) {
+        position: fixed;
+        top: var(--cl-top);
+        right: 0;
+        width: var(--cl-right-width);
+        height: calc(100vh - var(--cl-top));
+        padding: 0.75rem 1.1rem 1.5rem 1.1rem;
+        border-left: 1px solid #e5e7eb;
+        background-color: #ffffff;
+        overflow-y: auto;                /* its own scroll if long */
+        z-index: 100;
+    }
+
+    /* ================= GitHub button (unchanged) ================= */
 
     .gh-btn {
         display: inline-flex;
@@ -109,28 +133,28 @@ st.markdown(
     }
     .gh-icon { font-size: 0.9rem; }
 
-    /* ========== SEARCH BOX (same behavior, scoped to left col) ========== */
+    /* ================= SEARCH BOX (left column) ================= */
 
-    .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(1)
-      div[data-testid="stTextInput"] {
+    .block-container > div:first-child
+      > div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] {
         position: relative;
         margin: 0.25rem 0 1.25rem 0;
     }
 
-    .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(1)
-      div[data-testid="stTextInput"] > div {
+    .block-container > div:first-child
+      > div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] > div {
         background-color: transparent !important;
         box-shadow: none !important;
         padding: 0 !important;
     }
 
-    .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(1)
-      div[data-testid="stTextInput"] label {
+    .block-container > div:first-child
+      > div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] label {
         display: none;
     }
 
-    .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(1)
-      div[data-testid="stTextInput"] input {
+    .block-container > div:first-child
+      > div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] input {
         border-radius: 999px;
         border: 1px solid #d1d5db;
         padding: 0.35rem 0.9rem 0.35rem 2rem;
@@ -138,8 +162,8 @@ st.markdown(
         background-color: #ffffff;
     }
 
-    .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(1)
-      div[data-testid="stTextInput"]::before {
+    .block-container > div:first-child
+      > div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"]::before {
         content: "🔍";
         position: absolute;
         left: 0.6rem;
@@ -150,16 +174,18 @@ st.markdown(
         pointer-events: none;
     }
 
-    /* ===== Radio styling (left menu) – kept the same ===== */
+    /* ================= Left menu radio styling (kept) ================= */
 
     div[data-testid="stRadio"] > label {
         display: none !important;
     }
+
     div[data-testid="stRadio"] div[role="radiogroup"] {
         display: flex;
         flex-direction: column;
         gap: 0.15rem;
     }
+
     div[data-testid="stRadio"] div[role="radiogroup"] > label {
         padding: 4px 10px;
         border-radius: 4px;
@@ -168,47 +194,60 @@ st.markdown(
         font-weight: 400;
         color: #374151;
     }
+
     div[data-testid="stRadio"] div[role="radiogroup"] > label > div:first-child {
         display: none !important;
     }
-    div[data-testid="stRadio"] div[role="radiogroup"] > label[data-baseweb="radio"]:has(input:checked) {
+
+    div[data-testid="stRadio"] div[role="radiogroup"]
+      > label[data-baseweb="radio"]:has(input:checked) {
         background-color: #eff6ff;
         border-left: 3px solid #2563eb;
         color: #111827;
         font-weight: 600;
     }
+
     div[data-testid="stRadio"] div[role="radiogroup"] > label:hover {
         background-color: #e5e7eb;
     }
 
-    /* ===== Right TOC text ===== */
+    /* ================= Right TOC text ================= */
 
-    .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(3) h6 {
+    .block-container > div:first-child
+      > div[data-testid="column"]:nth-of-type(3) h6 {
         font-size: 0.85rem;
         font-weight: 600;
         margin-bottom: 0.15rem;
         color: #4b5563;
     }
-    .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(3) ul {
+
+    .block-container > div:first-child
+      > div[data-testid="column"]:nth-of-type(3) ul {
         list-style-type: disc;
         padding-left: 1.1rem;
         margin: 0;
     }
-    .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(3) li {
+
+    .block-container > div:first-child
+      > div[data-testid="column"]:nth-of-type(3) li {
         margin: 0;
         padding: 0;
         line-height: 1.1;
     }
-    .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(3) li a {
+
+    .block-container > div:first-child
+      > div[data-testid="column"]:nth-of-type(3) li a {
         font-size: 0.8rem;
         text-decoration: none;
         color: #2563eb;
     }
-    .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(3) li a:hover {
+
+    .block-container > div:first-child
+      > div[data-testid="column"]:nth-of-type(3) li a:hover {
         text-decoration: underline;
     }
 
-    /* Headings offset so anchor links don't hide under top padding */
+    /* Headings offset so anchor links aren't hidden at the top */
     h1, h2, h3, h4, h5, h6 {
         scroll-margin-top: 1.8rem;
     }
@@ -959,6 +998,7 @@ with col_toc:
         st.markdown("###### On this page")
         for item in items:
             st.markdown(f"- [{item['label']}](#{item['anchor']})")
+
 
 
 
