@@ -32,67 +32,47 @@ st.markdown(
     }
 
     .block-container {
-        padding: 0 !important;
-        margin: 0 !important;
-        max-width: 100vw;
-        height: 100vh;
-    }
-
-    /* Full row is fixed to page */
-    .block-container > div:nth-of-type(1) {
-        position: relative;
-        width: 100%;
+        padding-top: 1.4rem;
+        padding-left: 0;
+        padding-right: 0;
+        max-width: 1900px;
         height: 100%;
+        box-sizing: border-box;
+    }
+
+    .block-container > div:nth-of-type(1) {
         display: flex;
-        overflow: hidden;
+        height: 100%;
     }
 
-    /* LEFT column fixed */
-    .block-container > div:nth-of-type(1)
-      > div[data-testid="column"]:nth-of-type(1) {
-        position: fixed;
-        top: 0;
-        left: 0;
-        bottom: 0;
-        width: 230px;
-        padding: 0.75rem 1.1rem 1.5rem 1.1rem;
-        border-right: 1px solid #e5e7eb;
-        background-color: #f3f4f6;
-        overflow: hidden;
-        z-index: 10;
-    }
+    /* DO NOT CHANGE LEFT column — leave as is */
 
-    /* RIGHT column fixed */
-    .block-container > div:nth-of-type(1)
-      > div[data-testid="column"]:nth-of-type(3) {
-        position: fixed;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        width: 230px;
-        padding: 0.75rem 1.1rem 1.5rem 1.1rem;
-        border-left: 1px solid #e5e7eb;
-        background-color: #ffffff;
-        overflow: hidden;
-        z-index: 10;
-    }
-
-    /* MIDDLE column scrollable */
+    /* MIDDLE column (scrollable) */
     .block-container > div:nth-of-type(1)
       > div[data-testid="column"]:nth-of-type(2) {
-        margin-left: 230px;
-        margin-right: 230px;
-        height: 100vh;
+        flex: 1 1 auto;
+        height: 100%;
         overflow-y: auto;
         overflow-x: hidden;
         padding: 0.75rem 1.75rem 2rem 1.75rem;
         position: relative;
-        flex: 1 1 auto;
+        max-height: 100%;
     }
 
-    /* Fix anchor offsets */
+    /* RIGHT column (not scrollable) */
+    .block-container > div:nth-of-type(1)
+      > div[data-testid="column"]:nth-of-type(3) {
+        flex: 0 0 230px;
+        max-width: 230px;
+        height: 100%;
+        padding: 0.75rem 1.1rem 1.5rem 1.1rem;
+        border-left: 1px solid #e5e7eb;
+        background-color: #ffffff;
+        overflow: hidden;
+    }
+
     h1, h2, h3, h4, h5, h6 {
-        scroll-margin-top: 2rem;
+        scroll-margin-top: 1.8rem;
     }
 
     pre, code {
@@ -838,6 +818,7 @@ with col_toc:
             st.markdown(f"- [{item['label']}](#{item['anchor']})")
 
     st.markdown("</div>", unsafe_allow_html=True)  # CLOSE right-toc
+
 
 
 
