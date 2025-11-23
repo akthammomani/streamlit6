@@ -22,26 +22,33 @@ st.markdown(
     <style>
     /* ================== BASE CONTAINER ================== */
 
+    html, body {                      /* NEW: make page height well-defined */
+        height: 100%;
+        margin: 0;
+    }
+
     .block-container {
-        padding-top: 1.4rem;      /* push everything down – fixes clipping */
+        padding-top: 1.4rem;          /* push everything down – fixes clipping */
         padding-left: 0;
         padding-right: 0;
         max-width: 1900px;
+        height: calc(100vh - 1.4rem); /* NEW: keep app within viewport */
+        box-sizing: border-box;       /* NEW */
     }
 
     /* ================== LEFT SIDEBAR ================== */
 
     /* First column: narrow + sticky */
     .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(1) {
-        max-width: 230px;                      /* narrower sidebar */
+        max-width: 230px;                      
         flex: 0 0 230px;
         position: sticky;
-        top: 1rem;                             /* distance from top while scrolling */
+        top: 1rem;
         align-self: flex-start;
         padding: 0.75rem 1.1rem 1.5rem 1.1rem;
         border-right: 1px solid #e5e7eb;
         background-color: #f3f4f6;
-        max-height: calc(100vh - 1.8rem);      /* allow its own scroll if long */
+        max-height: 100%;               /* CHANGED: fill container height */
         overflow-y: auto;
         z-index: 50;
     }
@@ -50,6 +57,16 @@ st.markdown(
 
     .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(2) {
         padding: 0.75rem 1.75rem 2rem 1.75rem;
+        height: 100%;                   /* NEW: full height to host inner scroller */
+        box-sizing: border-box;         /* NEW */
+    }
+
+    /* Inner scroll area **only in the middle column** */
+    .block-container > div:nth-of-type(1)
+      > div[data-testid="column"]:nth-of-type(2) .main-scroll {   /* NEW */
+        height: 100%;                   /* use the column height */
+        overflow-y: auto;               /* <-- ONLY this scrolls */
+        padding-right: 0.5rem;          /* avoid clipped content at right edge */
     }
 
     /* ================== RIGHT SIDEBAR ================== */
@@ -63,18 +80,17 @@ st.markdown(
         padding: 0.75rem 1.1rem 1.5rem 1.1rem;
         border-left: 1px solid #e5e7eb;
         background-color: #ffffff;
-        max-height: calc(100vh - 1.8rem);
+        max-height: 100%;               /* CHANGED */
         overflow-y: auto;
         z-index: 50;
     }
 
     /* ================== LOGO SIZE + CENTER ================== */
 
-    /* Wrapper we’ll add around the logo */
     .cl-logo-wrap img {
         display: block;
-        margin: 0 auto 0.7rem auto;   /* center + gap */
-        max-width: 170px;             /* smaller logo */
+        margin: 0 auto 0.7rem auto;
+        max-width: 170px;               /* smaller logo; adjust if needed */
         height: auto;
     }
 
@@ -220,6 +236,7 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+
 
 
 
@@ -411,6 +428,7 @@ section_id = st.session_state["active_section"]
 
 # ---------------------- MAIN COLUMN ----------------------
 with col_main:
+    st.markdown('<div class="main-scroll">', unsafe_allow_html=True)
     if section_id == "home":
         st.title("ClusterLens")
         st.write(
@@ -951,6 +969,8 @@ with col_main:
             "---\n"
             "Questions or ideas for new knobs? Open an issue in the ClusterLens repo. 🚀"
         )
+    #end inner scroll area
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # ---------------------- RIGHT TOC COLUMN -----------------
 with col_toc:
@@ -960,6 +980,7 @@ with col_toc:
         st.markdown("###### On this page")
         for item in items:
             st.markdown(f"- [{item['label']}](#{item['anchor']})")
+
 
 
 
