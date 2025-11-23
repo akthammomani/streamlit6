@@ -20,72 +20,39 @@ SHOW_GITHUB_BADGE = True
 st.markdown(
     """
     <style>
-    /* === Global page: no window scroll, we will scroll only the center === */
-    html, body {
-        height: 100%;
-        margin: 0;
-        overflow: hidden;              /* disable browser scrollbar */
-    }
-
+    /* --------- main Streamlit container --------- */
     .block-container {
-        padding-top: 1.4rem;           /* fix clipping from top */
+        padding-top: 1.4rem;   /* avoid clipping under Streamlit top bar */
         padding-left: 0;
         padding-right: 0;
         max-width: 1900px;
     }
 
-    /* === FIXED LEFT NAV === */
+    /* =========================================================
+       FIXED LEFT SIDEBAR (uses .left-nav wrapper in col_nav)
+       ========================================================= */
     .left-nav {
         position: fixed;
-        top: 1.4rem;                   /* align with padding-top above */
+        top: 1.4rem;                          /* line up with padding-top */
         left: 0;
         width: 230px;
-        bottom: 0;                     /* full height */
+        height: calc(100vh - 1.4rem);         /* full viewport height */
         padding: 0.75rem 1.1rem 1.5rem 1.1rem;
         border-right: 1px solid #e5e7eb;
         background-color: #f3f4f6;
-        overflow-y: auto;              /* its own scroll if needed */
-        z-index: 50;
-        box-sizing: border-box;
+        overflow-y: auto;                     /* its own scroll if long */
+        z-index: 100;
     }
 
-    /* === SCROLLING MIDDLE CONTENT === */
-    .main-wrapper {
-        position: fixed;
-        top: 1.4rem;
-        left: 230px;                   /* same as left-nav width */
-        right: 230px;                  /* same as right-toc width */
-        bottom: 0;
-        padding: 0.75rem 1.75rem 2rem 1.75rem;
-        overflow-y: auto;              /* <-- ONLY this scrolls */
-        box-sizing: border-box;
-        background: white;
-    }
-
-    /* === FIXED RIGHT TOC === */
-    .right-toc {
-        position: fixed;
-        top: 1.4rem;
-        right: 0;
-        width: 230px;
-        bottom: 0;
-        padding: 0.75rem 1.1rem 1.5rem 1.1rem;
-        border-left: 1px solid #e5e7eb;
-        background-color: #ffffff;
-        overflow-y: auto;
-        z-index: 50;
-        box-sizing: border-box;
-    }
-
-    /* === Logo size + centering in left nav === */
-    .left-nav div[data-testid="stImage"] img {
+    /* Logo inside left sidebar */
+    .left-nav .cl-logo-wrap img {
         display: block;
         margin: 0 auto 0.7rem auto;
-        max-width: 150px;
+        max-width: 150px;                     /* adjust logo size */
         height: auto;
     }
 
-    /* === GitHub button === */
+    /* GitHub button */
     .gh-btn {
         display: inline-flex;
         align-items: stretch;
@@ -115,7 +82,7 @@ st.markdown(
     }
     .gh-icon { font-size: 0.9rem; }
 
-    /* === Search box (left nav only) === */
+    /* Search box ONLY in left sidebar */
     .left-nav div[data-testid="stTextInput"] {
         position: relative;
         margin: 0.25rem 0 1.25rem 0;
@@ -146,7 +113,7 @@ st.markdown(
         pointer-events: none;
     }
 
-    /* === Radio styling (left menu) === */
+    /* Radio styling – scoped to left sidebar */
     .left-nav div[data-testid="stRadio"] > label {
         display: none !important;
     }
@@ -177,7 +144,32 @@ st.markdown(
         background-color: #e5e7eb;
     }
 
-    /* === Right TOC text === */
+    /* =========================================================
+       MAIN CONTENT – leave room for both fixed sidebars
+       ========================================================= */
+    .main-wrapper {
+        margin-left: 230px;                   /* same as .left-nav width */
+        margin-right: 230px;                  /* same as .right-toc width */
+        padding: 0.75rem 1.75rem 2rem 1.75rem;
+        box-sizing: border-box;
+    }
+
+    /* =========================================================
+       FIXED RIGHT SIDEBAR (TOC)
+       ========================================================= */
+    .right-toc {
+        position: fixed;
+        top: 1.4rem;
+        right: 0;
+        width: 230px;
+        height: calc(100vh - 1.4rem);
+        padding: 0.75rem 1.1rem 1.5rem 1.1rem;
+        border-left: 1px solid #e5e7eb;
+        background-color: #ffffff;
+        overflow-y: auto;
+        z-index: 100;
+    }
+
     .right-toc h6 {
         font-size: 0.85rem;
         font-weight: 600;
@@ -210,18 +202,6 @@ st.markdown(
 
     pre, code {
         font-size: 0.9rem !important;
-    }
-
-    /* Basic fallback for very narrow screens: let page scroll normally */
-    @media (max-width: 900px) {
-        html, body {
-            overflow: auto;
-        }
-        .left-nav, .right-toc, .main-wrapper {
-            position: static;
-            width: auto;
-            height: auto;
-        }
     }
     </style>
     """,
@@ -966,3 +946,4 @@ with col_toc:
             st.markdown(f"- [{item['label']}](#{item['anchor']})")
 
     st.markdown("</div>", unsafe_allow_html=True)  # close .right-toc
+
