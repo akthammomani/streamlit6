@@ -22,47 +22,47 @@ st.markdown(
     <style>
     /* ===== Layout tweaks ===== */
     .block-container {
-        padding-top: 0;
+        padding-top: 1.2rem;      /* push content down a bit */
         padding-left: 0;
         padding-right: 0;
         max-width: 1900px;
     }
 
     /*
-      IMPORTANT:
-      We scope to the FIRST set of columns in the main area so we only
-      touch your 3 main columns (nav, content, TOC), not any nested columns.
+      We only touch the FIRST row of columns created by st.columns(...)
+      inside the main block-container. That row is your nav/main/TOC.
+      This avoids breaking any nested columns later in the page.
     */
 
     /* ==== Fixed left sidebar (column 1) ==== */
-    section.main > div > :first-child div[data-testid="column"]:nth-of-type(1) {
+    .block-container > div:first-child div[data-testid="column"]:nth-of-type(1) {
         position: fixed;
-        top: 4.2rem;                 /* push down a bit more to avoid clipping */
+        top: 4.2rem;                 /* just under the Streamlit top bar */
         left: 0;
-        width: 240px;                /* narrower sidebar */
+        width: 230px;                /* narrower sidebar */
         height: calc(100vh - 4.2rem);
         padding: 1rem 1.25rem 2rem 1.25rem;
         border-right: 1px solid #e5e7eb;
-        background-color: #f3f4f6;   /* light grey sidebar */
+        background-color: #f3f4f6;   /* light grey */
         overflow-y: auto;
         z-index: 100;
     }
 
     /* ==== Main content (column 2) ==== */
-    section.main > div > :first-child div[data-testid="column"]:nth-of-type(2) {
-        margin-left: 240px;          /* match left sidebar width */
-        margin-right: 220px;         /* match right sidebar width */
+    .block-container > div:first-child div[data-testid="column"]:nth-of-type(2) {
+        margin-left: 230px;          /* match left sidebar width */
+        margin-right: 210px;         /* match right sidebar width */
         padding-left: 2rem;
         padding-right: 2rem;
-        padding-top: 4.2rem;         /* same offset as sidebars */
+        padding-top: 4.2rem;         /* same vertical offset as sidebars */
     }
 
-    /* ==== Fixed right "On this page" sidebar (column 3) ==== */
-    section.main > div > :first-child div[data-testid="column"]:nth-of-type(3) {
+    /* ==== Fixed right TOC sidebar (column 3) ==== */
+    .block-container > div:first-child div[data-testid="column"]:nth-of-type(3) {
         position: fixed;
         top: 4.2rem;
         right: 0;
-        width: 220px;                /* narrower right sidebar */
+        width: 210px;                /* narrower right sidebar */
         height: calc(100vh - 4.2rem);
         padding: 1rem 1.25rem 2rem 1.25rem;
         border-left: 1px solid #e5e7eb;
@@ -72,15 +72,15 @@ st.markdown(
     }
 
     /* ===== Logo centering & size (left column) ===== */
-    section.main > div > :first-child
-      div[data-testid="column"]:nth-of-type(1) img {
+    .block-container > div:first-child 
+      div[data-testid="column"]:nth-of-type(1) div[data-testid="stImage"] img {
         display: block;
         margin-left: auto;
         margin-right: auto;
-        max-width: 180px;            /* smaller logo */
+        max-width: 170px;            /* smaller logo */
     }
 
-    section.main > div > :first-child
+    .block-container > div:first-child 
       div[data-testid="column"]:nth-of-type(1) div[data-testid="stImage"] {
         margin-bottom: 0.75rem;
     }
@@ -124,28 +124,28 @@ st.markdown(
     }
 
     /* ===== Search box styling (left column) ===== */
-    section.main > div > :first-child
+    .block-container > div:first-child 
       div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] {
         position: relative;
         margin: 0.25rem 0 1.25rem 0;
     }
 
     /* Remove grey outer pill around the input wrapper */
-    section.main > div > :first-child
+    .block-container > div:first-child 
       div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] > div {
         background-color: transparent !important;
         box-shadow: none !important;
         padding: 0 !important;
     }
 
-    /* Hide the label text of the search input */
-    section.main > div > :first-child
+    /* Hide the label text of the search input (we'll still pass a label in Python) */
+    .block-container > div:first-child 
       div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] label {
         display: none;
     }
 
     /* Search input itself */
-    section.main > div > :first-child
+    .block-container > div:first-child 
       div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] input {
         border-radius: 999px;
         border: 1px solid #d1d5db;
@@ -155,7 +155,7 @@ st.markdown(
     }
 
     /* Magnifying glass icon */
-    section.main > div > :first-child
+    .block-container > div:first-child 
       div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"]::before {
         content: "🔍";
         position: absolute;
@@ -168,7 +168,7 @@ st.markdown(
     }
 
     /* ===== Docs-style nav (radio but no round dots) ===== */
-    /* (kept exactly the same behaviour you had) */
+    /* This is exactly the same style you already had */
 
     /* Completely hide the built-in radio label text ("Sections") */
     div[data-testid="stRadio"] > label {
@@ -217,7 +217,7 @@ st.markdown(
     }
 
     /* ===== Right "On this page" sidebar text tweaks ===== */
-    section.main > div > :first-child
+    .block-container > div:first-child 
       div[data-testid="column"]:nth-of-type(3) h6 {
         font-size: 0.85rem;
         font-weight: 600;
@@ -226,28 +226,28 @@ st.markdown(
         color: #4b5563;
     }
 
-    section.main > div > :first-child
+    .block-container > div:first-child 
       div[data-testid="column"]:nth-of-type(3) ul {
         list-style-type: disc;
         padding-left: 1.1rem;
         margin: 0;
     }
 
-    section.main > div > :first-child
+    .block-container > div:first-child 
       div[data-testid="column"]:nth-of-type(3) li {
         margin: 0;
         padding: 0;
         line-height: 1.1;
     }
 
-    section.main > div > :first-child
+    .block-container > div:first-child 
       div[data-testid="column"]:nth-of-type(3) li a {
         font-size: 0.8rem;
         text-decoration: none;
         color: #2563eb;
     }
 
-    section.main > div > :first-child
+    .block-container > div:first-child 
       div[data-testid="column"]:nth-of-type(3) li a:hover {
         text-decoration: underline;
     }
@@ -999,4 +999,5 @@ with col_toc:
         st.markdown("###### On this page")
         for item in items:
             st.markdown(f"- [{item['label']}](#{item['anchor']})")
+
 
