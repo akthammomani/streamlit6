@@ -77,7 +77,7 @@ st.markdown(
         display: block;
         margin-left: auto;
         margin-right: auto;
-        max-width: 140px;            /* smaller logo */
+        max-width: 100px;            /* smaller logo */
     }
 
     .block-container > div:first-child 
@@ -999,6 +999,7 @@ with col_toc:
         st.markdown("###### On this page")
         for item in items:
             st.markdown(f"- [{item['label']}](#{item['anchor']})")
+
 
 
 
