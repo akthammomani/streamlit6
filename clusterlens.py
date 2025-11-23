@@ -20,232 +20,79 @@ SHOW_GITHUB_BADGE = True
 st.markdown(
     """
     <style>
-    /* ---------- 1) Stop outer app from scrolling ---------- */
-
     html, body {
         height: 100%;
         margin: 0;
-        overflow: hidden;  /* disable browser/page scroll */
+        overflow: hidden;
     }
 
-    /* Streamlit main scroll container – also disable scroll here */
     [data-testid="stAppViewContainer"] > .main {
         height: 100vh;
         overflow: hidden;
     }
 
-    /* ---------- 2) Block container & first row ---------- */
-
     .block-container {
-        padding-top: 1.4rem;
-        padding-left: 0;
-        padding-right: 0;
-        max-width: 1900px;
-        height: 100%;
-        box-sizing: border-box;
+        padding: 0 !important;
+        margin: 0 !important;
+        max-width: 100vw;
+        height: 100vh;
     }
 
-    /* First direct child (where st.columns are rendered) */
+    /* Full row is fixed to page */
     .block-container > div:nth-of-type(1) {
-        display: flex;
+        position: relative;
+        width: 100%;
         height: 100%;
+        display: flex;
+        overflow: hidden;
     }
 
-    /* ---------- 3) Columns: only middle scrolls ---------- */
-
-    /* LEFT column (no scroll; fixed) */
+    /* LEFT column fixed */
     .block-container > div:nth-of-type(1)
       > div[data-testid="column"]:nth-of-type(1) {
-        flex: 0 0 230px;
-        max-width: 230px;
-        height: 100%;
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 230px;
         padding: 0.75rem 1.1rem 1.5rem 1.1rem;
         border-right: 1px solid #e5e7eb;
         background-color: #f3f4f6;
         overflow: hidden;
-        position: relative;
+        z-index: 10;
     }
 
-    /* MIDDLE column (scrollable) */
-    .block-container > div:nth-of-type(1)
-      > div[data-testid="column"]:nth-of-type(2) {
-        flex: 1 1 auto;
-        height: 100%;
-        padding: 0.75rem 1.75rem 2rem 1.75rem;
-        overflow-y: auto;
-        overflow-x: hidden;
-        position: relative;
-        max-height: 100%;
-    }
-
-    /* RIGHT column (no scroll; fixed) */
+    /* RIGHT column fixed */
     .block-container > div:nth-of-type(1)
       > div[data-testid="column"]:nth-of-type(3) {
-        flex: 0 0 230px;
-        max-width: 230px;
-        height: 100%;
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 230px;
         padding: 0.75rem 1.1rem 1.5rem 1.1rem;
         border-left: 1px solid #e5e7eb;
         background-color: #ffffff;
         overflow: hidden;
+        z-index: 10;
+    }
+
+    /* MIDDLE column scrollable */
+    .block-container > div:nth-of-type(1)
+      > div[data-testid="column"]:nth-of-type(2) {
+        margin-left: 230px;
+        margin-right: 230px;
+        height: 100vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding: 0.75rem 1.75rem 2rem 1.75rem;
         position: relative;
+        flex: 1 1 auto;
     }
 
-    /* ---------- 4) Logo size / position ---------- */
-
-    .block-container > div:nth-of-type(1)
-      > div[data-testid="column"]:nth-of-type(1)
-      div[data-testid="stImage"] img {
-        display: block;
-        margin: 0 auto 0.7rem auto;
-        max-width: 150px;
-        height: auto;
-    }
-
-    /* ---------- 5) GitHub button ---------- */
-
-    .gh-btn {
-        display: inline-flex;
-        align-items: stretch;
-        margin: 0.15rem auto 0.8rem auto;
-        border-radius: 4px;
-        overflow: hidden;
-        border: 1px solid #d0d7de;
-        font-size: 0.8rem;
-        text-decoration: none;
-        color: #111827;
-        background-color: #ffffff;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.03);
-    }
-    .gh-btn:hover { background-color: #f6f8fa; }
-    .gh-left {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.35rem;
-        padding: 0.25rem 0.6rem;
-        background-color: #f6f8fa;
-    }
-    .gh-right {
-        padding: 0.25rem 0.6rem;
-        border-left: 1px solid #d0d7de;
-        font-variant-numeric: tabular-nums;
-        background-color: #ffffff;
-    }
-    .gh-icon { font-size: 0.9rem; }
-
-    /* ---------- 6) Search box in left col ---------- */
-
-    .block-container > div:nth-of-type(1)
-      > div[data-testid="column"]:nth-of-type(1)
-      div[data-testid="stTextInput"] {
-        position: relative;
-        margin: 0.25rem 0 1.25rem 0;
-    }
-
-    .block-container > div:nth-of-type(1)
-      > div[data-testid="column"]:nth-of-type(1)
-      div[data-testid="stTextInput"] > div {
-        background-color: transparent !important;
-        box-shadow: none !important;
-        padding: 0 !important;
-    }
-
-    .block-container > div:nth-of-type(1)
-      > div[data-testid="column"]:nth-of-type(1)
-      div[data-testid="stTextInput"] label {
-        display: none;
-    }
-
-    .block-container > div:nth-of-type(1)
-      > div[data-testid="column"]:nth-of-type(1)
-      div[data-testid="stTextInput"] input {
-        border-radius: 999px;
-        border: 1px solid #d1d5db;
-        padding: 0.35rem 0.9rem 0.35rem 2rem;
-        font-size: 0.9rem;
-        background-color: #ffffff;
-    }
-
-    .block-container > div:nth-of-type(1)
-      > div[data-testid="column"]:nth-of-type(1)
-      div[data-testid="stTextInput"]::before {
-        content: "🔍";
-        position: absolute;
-        left: 0.6rem;
-        top: 50%;
-        transform: translateY(-50%);
-        font-size: 0.85rem;
-        color: #9ca3af;
-        pointer-events: none;
-    }
-
-    /* ---------- 7) Radio styling ---------- */
-
-    div[data-testid="stRadio"] > label {
-        display: none !important;
-    }
-    div[data-testid="stRadio"] div[role="radiogroup"] {
-        display: flex;
-        flex-direction: column;
-        gap: 0.15rem;
-    }
-    div[data-testid="stRadio"] div[role="radiogroup"] > label {
-        padding: 4px 10px;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 0.95rem;
-        font-weight: 400;
-        color: #374151;
-    }
-    div[data-testid="stRadio"] div[role="radiogroup"] > label > div:first-child {
-        display: none !important;
-    }
-    div[data-testid="stRadio"] div[role="radiogroup"]
-      > label[data-baseweb="radio"]:has(input:checked) {
-        background-color: #eff6ff;
-        border-left: 3px solid #2563eb;
-        color: #111827;
-        font-weight: 600;
-    }
-    div[data-testid="stRadio"] div[role="radiogroup"] > label:hover {
-        background-color: #e5e7eb;
-    }
-
-    /* ---------- 8) Right TOC text ---------- */
-
-    .block-container > div:nth-of-type(1)
-      > div[data-testid="column"]:nth-of-type(3) h6 {
-        font-size: 0.85rem;
-        font-weight: 600;
-        margin-bottom: 0.15rem;
-        color: #4b5563;
-    }
-    .block-container > div:nth-of-type(1)
-      > div[data-testid="column"]:nth-of-type(3) ul {
-        list-style-type: disc;
-        padding-left: 1.1rem;
-        margin: 0;
-    }
-    .block-container > div:nth-of-type(1)
-      > div[data-testid="column"]:nth-of-type(3) li {
-        margin: 0;
-        padding: 0;
-        line-height: 1.1;
-    }
-    .block-container > div:nth-of-type(1)
-      > div[data-testid="column"]:nth-of-type(3) li a {
-        font-size: 0.8rem;
-        text-decoration: none;
-        color: #2563eb;
-    }
-    .block-container > div:nth-of-type(1)
-      > div[data-testid="column"]:nth-of-type(3) li a:hover {
-        text-decoration: underline;
-    }
-
-    /* Offset headings for anchor links */
+    /* Fix anchor offsets */
     h1, h2, h3, h4, h5, h6 {
-        scroll-margin-top: 1.8rem;
+        scroll-margin-top: 2rem;
     }
 
     pre, code {
@@ -255,6 +102,7 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+
 
 
 # ---------------------------------------------------------
@@ -990,5 +838,6 @@ with col_toc:
             st.markdown(f"- [{item['label']}](#{item['anchor']})")
 
     st.markdown("</div>", unsafe_allow_html=True)  # CLOSE right-toc
+
 
 
