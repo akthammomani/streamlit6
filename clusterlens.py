@@ -20,10 +20,11 @@ SHOW_GITHUB_BADGE = True
 st.markdown(
     """
     <style>
+    /* ================== GLOBAL: lock page scroll ================== */
     html, body {
-    height: 100%;
-    margin: 0;
-    overflow: hidden;   /* ⬅️ stop the browser window from scrolling */
+        height: 100%;
+        margin: 0;
+        overflow: hidden;              /* 🔒 disable browser scrolling */
     }
 
     /* ================== BASE LAYOUT ================== */
@@ -50,15 +51,15 @@ st.markdown(
         z-index: 100;
     }
 
-    /* ================== MAIN CONTENT ================== */
+    /* ================== MAIN CONTENT (ONLY THIS SCROLLS) ================== */
 
     .main-wrapper {
         margin-left: 230px;                       /* same as left width */
         margin-right: 230px;                      /* same as right width */
         padding: 0.75rem 1.75rem 2rem 1.75rem;
         box-sizing: border-box;
-        height: calc(100vh - 1.4rem); 
-        overflow-y: auto;
+        height: calc(100vh - 1.4rem);             /* full height under top padding */
+        overflow-y: auto;                         /* ✅ only middle scrolls */
     }
 
     /* ================== FIXED RIGHT SIDEBAR ================== */
@@ -152,7 +153,7 @@ st.markdown(
         pointer-events: none;
     }
 
-    /* ===== Radio styling (left menu) – same as yours, but scoped ===== */
+    /* ===== Radio styling (left menu) – scoped ===== */
 
     .left-nav div[data-testid="stRadio"] > label {
         display: none !important;
@@ -971,6 +972,7 @@ with col_toc:
         st.markdown("###### On this page")
         for item in items:
             st.markdown(f"- [{item['label']}](#{item['anchor']})")
+
 
 
 
