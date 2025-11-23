@@ -70,8 +70,11 @@ st.markdown(
       > div[data-testid="column"]:nth-of-type(2) {
         flex: 1 1 auto;
         padding: 0.75rem 1.75rem 2rem 1.75rem;
-        overflow-y: auto;        /* IMPORTANT: main scroll */
         height: 100%;
+        overflow-y: auto;
+        overflow-x: hidden;
+        position: relative;
+        max-height: 100%;
     }
 
     /* RIGHT column (no scroll; stays fixed visually) */
@@ -985,3 +988,4 @@ with col_toc:
             st.markdown(f"- [{item['label']}](#{item['anchor']})")
 
     st.markdown("</div>", unsafe_allow_html=True)  # CLOSE right-toc
+
