@@ -37,56 +37,58 @@ st.markdown(
     /* ---------- 2) Block container & first row ---------- */
 
     .block-container {
-        padding-top: 1.4rem;   /* fix clipping from top */
+        padding-top: 1.4rem;
         padding-left: 0;
         padding-right: 0;
         max-width: 1900px;
-        height: 100%;          /* fill the .main height */
+        height: 100%;
         box-sizing: border-box;
     }
 
     /* First direct child (where st.columns are rendered) */
     .block-container > div:nth-of-type(1) {
         display: flex;
-        height: 100%;          /* make the row full-height */
+        height: 100%;
     }
 
     /* ---------- 3) Columns: only middle scrolls ---------- */
 
-    /* LEFT column (no scroll; stays fixed visually) */
+    /* LEFT column (no scroll; fixed) */
     .block-container > div:nth-of-type(1)
       > div[data-testid="column"]:nth-of-type(1) {
-        max-width: 230px;
         flex: 0 0 230px;
+        max-width: 230px;
+        height: 100%;
         padding: 0.75rem 1.1rem 1.5rem 1.1rem;
         border-right: 1px solid #e5e7eb;
         background-color: #f3f4f6;
-        overflow-y: hidden;      /* IMPORTANT: no scroll */
-        height: 100%;
+        overflow: hidden;
+        position: relative;
     }
 
-    /* MIDDLE column (this is the ONLY scrollable area) */
+    /* MIDDLE column (scrollable) */
     .block-container > div:nth-of-type(1)
       > div[data-testid="column"]:nth-of-type(2) {
         flex: 1 1 auto;
-        padding: 0.75rem 1.75rem 2rem 1.75rem;
         height: 100%;
+        padding: 0.75rem 1.75rem 2rem 1.75rem;
         overflow-y: auto;
         overflow-x: hidden;
         position: relative;
         max-height: 100%;
     }
 
-    /* RIGHT column (no scroll; stays fixed visually) */
+    /* RIGHT column (no scroll; fixed) */
     .block-container > div:nth-of-type(1)
       > div[data-testid="column"]:nth-of-type(3) {
-        max-width: 230px;
         flex: 0 0 230px;
+        max-width: 230px;
+        height: 100%;
         padding: 0.75rem 1.1rem 1.5rem 1.1rem;
         border-left: 1px solid #e5e7eb;
         background-color: #ffffff;
-        overflow-y: hidden;      /* IMPORTANT: no scroll */
-        height: 100%;
+        overflow: hidden;
+        position: relative;
     }
 
     /* ---------- 4) Logo size / position ---------- */
@@ -988,4 +990,5 @@ with col_toc:
             st.markdown(f"- [{item['label']}](#{item['anchor']})")
 
     st.markdown("</div>", unsafe_allow_html=True)  # CLOSE right-toc
+
 
