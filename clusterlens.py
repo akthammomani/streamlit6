@@ -20,6 +20,12 @@ SHOW_GITHUB_BADGE = True
 st.markdown(
     """
     <style>
+    html, body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;   /* ⬅️ stop the browser window from scrolling */
+    }
+
     /* ================== BASE LAYOUT ================== */
 
     .block-container {
@@ -51,6 +57,8 @@ st.markdown(
         margin-right: 230px;                      /* same as right width */
         padding: 0.75rem 1.75rem 2rem 1.75rem;
         box-sizing: border-box;
+        height: calc(100vh - 1.4rem); 
+        overflow-y: auto;
     }
 
     /* ================== FIXED RIGHT SIDEBAR ================== */
@@ -963,6 +971,7 @@ with col_toc:
         st.markdown("###### On this page")
         for item in items:
             st.markdown(f"- [{item['label']}](#{item['anchor']})")
+
 
 
 
