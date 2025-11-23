@@ -1,4 +1,3 @@
-# best app so far: 
 import streamlit as st
 from textwrap import dedent
 import requests
@@ -277,6 +276,7 @@ def subheader_with_anchor(text: str, anchor: str):
 SECTIONS = [
     {"id": "home",                     "label": "Home"},
     {"id": "quickstart",               "label": "Quickstart"},
+    {"id": "installation",             "label": "Library installation"},
     {"id": "data_requirements",        "label": "Data requirements"},
     {"id": "api_init_fit",             "label": "API: init & fit"},
     {"id": "api_importance_shap",      "label": "API: importance & SHAP"},
@@ -296,6 +296,10 @@ SECTION_SEARCH = {
         quickstart example ClusterAnalyzer ca.fit
         get_cluster_classification_stats get_top_shap_features
         generate_cluster_narratives
+    """,
+    "installation": """
+        install installation pip pypi github local clone conda virtual environment
+        clusterlens-env lightgbm xgboost wheel
     """,
     "data_requirements": """
         pandas DataFrame numeric features categorical features
@@ -337,6 +341,12 @@ TOC_ITEMS = {
     "api_init_fit": [
         {"label": "ClusterAnalyzer.__init__", "anchor": "api_init_fit_init"},
         {"label": "ClusterAnalyzer.fit", "anchor": "api_init_fit_fit"},
+    ],
+    "installation": [
+        {"label": "From PyPI", "anchor": "install_pypi"},
+        {"label": "From GitHub", "anchor": "install_github"},
+        {"label": "From local clone", "anchor": "install_local"},
+        {"label": "Conda / virtual env", "anchor": "install_env"},
     ],
     "api_importance_shap": [
         {"label": "plot_cluster_shap", "anchor": "api_importance_plot"},
@@ -520,6 +530,99 @@ with col_main:
             """
         )
 
+    elif section_id == "installation":
+        st.header("Library installation")
+        st.markdown(
+            """
+            ClusterLens is published on **PyPI** and can be installed via `pip`.
+            Below are common installation options depending on how you prefer to work.
+            """
+        )
+
+        subheader_with_anchor("From PyPI (recommended)", "install_pypi")
+        st.markdown(
+            dedent(
+                """
+                *From [PyPI](https://pypi.org/project/clusterlens/):*
+
+                ```bash
+                # Fresh install:
+                pip install clusterlens
+
+                # Upgrade to the latest version:
+                pip install -U clusterlens
+
+                # With optional extras (LightGBM, XGBoost):
+                pip install -U "clusterlens[lightgbm,xgboost]"
+
+                # To pin a specific version:
+                pip install "clusterlens==0.1.0"
+                ```
+                """
+            )
+        )
+
+        subheader_with_anchor("From GitHub (latest main)", "install_github")
+        st.markdown(
+            dedent(
+                """
+                ```bash
+                # Install directly from the GitHub repo:
+                pip install "git+https://github.com/akthammomani/ClusterLens.git"
+
+                # With extras:
+                pip install "clusterlens[lightgbm,xgboost] @ git+https://github.com/akthammomani/ClusterLens.git"
+                ```
+                """
+            )
+        )
+
+        subheader_with_anchor("From a local clone", "install_local")
+        st.markdown(
+            dedent(
+                """
+                ```bash
+                git clone https://github.com/akthammomani/ClusterLens.git
+                cd ClusterLens
+
+                # standard install:
+                pip install .
+
+                # or editable (developer) install:
+                pip install -e .
+                ```
+                """
+            )
+        )
+
+        subheader_with_anchor("Inside a conda or virtual environment", "install_env")
+        st.markdown(
+            dedent(
+                """
+                *Using a dedicated environment is recommended:*
+
+                ```bash
+                # Create and activate an environment, then install via pip:
+                conda create -n clusterlens-env python=3.10
+                conda activate clusterlens-env
+                pip install -U clusterlens       # or use any of the commands above
+                ```
+                """
+            )
+        )
+
+        st.markdown(
+            dedent(
+                """
+                After installation you should be able to do:
+
+                ```python
+                from clusterlens import ClusterAnalyzer
+                ```
+                """
+            )
+        )
+
     elif section_id == "data_requirements":
         st.header("Data requirements")
         st.markdown(
@@ -669,7 +772,7 @@ with col_main:
             - `"negative"`:
               - Uses only rows where `y_eval_bin == 0` (all other clusters).
               - Reads as: features that **keep points out of this cluster**.
-              - Good for debugging: "what repels points from Cluster A?”.
+              - Good for debugging: "what repels points from Cluster A?”.  
             - `"all"`:
               - Uses the full evaluation set.
               - More of a **global discriminative view** for that OVR classifier
@@ -985,4 +1088,3 @@ with col_toc:
             st.markdown(f"- [{item['label']}](#{item['anchor']})")
 
     st.markdown("</div>", unsafe_allow_html=True)  # CLOSE right-toc
-
