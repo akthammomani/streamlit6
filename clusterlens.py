@@ -19,40 +19,49 @@ SHOW_GITHUB_BADGE = True
 st.markdown(
     """
     <style>
-    /* ---------- 1) Stop outer app from scrolling ---------- */
+    /* ===== 1. Kill global scrolling, lock the app to viewport ===== */
 
     html, body {
         height: 100%;
         margin: 0;
-        overflow: hidden;  /* disable browser/page scroll */
+    }
+    body {
+        overflow: hidden !important;  /* browser scrollbar off */
     }
 
-    /* Streamlit main scroll container – also disable scroll here */
+    /* Main Streamlit view container normally has overflow:auto */
+    [data-testid="stAppViewContainer"] {
+        overflow: hidden !important;
+    }
+
+    /* Its child ".main" also needs to be locked */
     [data-testid="stAppViewContainer"] > .main {
-        height: 100vh;
-        overflow: hidden;
+        height: 100vh !important;
+        overflow: hidden !important;
+        display: flex;
+        flex-direction: column;
     }
 
-    /* ---------- 2) Block container & first row ---------- */
+    /* ===== 2. Block container & first row ===== */
 
     .block-container {
-        padding-top: 1.4rem;   /* fix clipping from top */
+        padding-top: 1.4rem;      /* fix clipping from top */
         padding-left: 0;
         padding-right: 0;
         max-width: 1900px;
-        height: 100%;          /* fill the .main height */
+        height: 100%;             /* fill .main */
         box-sizing: border-box;
     }
 
-    /* First direct child (where st.columns are rendered) */
+    /* first child of block-container is the row that holds your st.columns */
     .block-container > div:nth-of-type(1) {
         display: flex;
-        height: 100%;          /* make the row full-height */
+        height: 100%;
     }
 
-    /* ---------- 3) Columns: only middle scrolls ---------- */
+    /* ===== 3. Columns: only middle column scrolls the content ===== */
 
-    /* LEFT column (no scroll; stays fixed visually) */
+    /* LEFT column (static; has its own tiny scroll if content is too tall) */
     .block-container > div:nth-of-type(1)
       > div[data-testid="column"]:nth-of-type(1) {
         max-width: 230px;
@@ -60,20 +69,20 @@ st.markdown(
         padding: 0.75rem 1.1rem 1.5rem 1.1rem;
         border-right: 1px solid #e5e7eb;
         background-color: #f3f4f6;
-        overflow-y: hidden;      /* IMPORTANT: no scroll */
         height: 100%;
+        overflow-y: auto;       /* only if menu is taller than viewport */
     }
 
-    /* MIDDLE column (this is the ONLY scrollable area) */
+    /* MIDDLE column – THIS is the main scroll area */
     .block-container > div:nth-of-type(1)
       > div[data-testid="column"]:nth-of-type(2) {
         flex: 1 1 auto;
         padding: 0.75rem 1.75rem 2rem 1.75rem;
-        overflow-y: auto;        /* IMPORTANT: main scroll */
         height: 100%;
+        overflow-y: auto;       /* main vertical scrollbar */
     }
 
-    /* RIGHT column (no scroll; stays fixed visually) */
+    /* RIGHT column (static; own scroll if long) */
     .block-container > div:nth-of-type(1)
       > div[data-testid="column"]:nth-of-type(3) {
         max-width: 230px;
@@ -81,11 +90,11 @@ st.markdown(
         padding: 0.75rem 1.1rem 1.5rem 1.1rem;
         border-left: 1px solid #e5e7eb;
         background-color: #ffffff;
-        overflow-y: hidden;      /* IMPORTANT: no scroll */
         height: 100%;
+        overflow-y: auto;       /* scroll only if TOC overflows */
     }
 
-    /* ---------- 4) Logo size / position ---------- */
+    /* ===== 4. Logo sizing in left column ===== */
 
     .block-container > div:nth-of-type(1)
       > div[data-testid="column"]:nth-of-type(1)
@@ -96,7 +105,7 @@ st.markdown(
         height: auto;
     }
 
-    /* ---------- 5) GitHub button ---------- */
+    /* ===== 5. GitHub button ===== */
 
     .gh-btn {
         display: inline-flex;
@@ -127,7 +136,7 @@ st.markdown(
     }
     .gh-icon { font-size: 0.9rem; }
 
-    /* ---------- 6) Search box in left col ---------- */
+    /* ===== 6. Search box (left column only) ===== */
 
     .block-container > div:nth-of-type(1)
       > div[data-testid="column"]:nth-of-type(1)
@@ -173,7 +182,7 @@ st.markdown(
         pointer-events: none;
     }
 
-    /* ---------- 7) Radio styling ---------- */
+    /* ===== 7. Radio styling (left menu) ===== */
 
     div[data-testid="stRadio"] > label {
         display: none !important;
@@ -205,7 +214,7 @@ st.markdown(
         background-color: #e5e7eb;
     }
 
-    /* ---------- 8) Right TOC text ---------- */
+    /* ===== 8. Right TOC text ===== */
 
     .block-container > div:nth-of-type(1)
       > div[data-testid="column"]:nth-of-type(3) h6 {
@@ -237,7 +246,7 @@ st.markdown(
         text-decoration: underline;
     }
 
-    /* Offset headings for anchor links */
+    /* Anchor offset for section links */
     h1, h2, h3, h4, h5, h6 {
         scroll-margin-top: 1.8rem;
     }
@@ -249,6 +258,7 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+
 
 
 # ---------------------------------------------------------
@@ -984,4 +994,5 @@ with col_toc:
             st.markdown(f"- [{item['label']}](#{item['anchor']})")
 
     st.markdown("</div>", unsafe_allow_html=True)  # CLOSE right-toc
+
 
