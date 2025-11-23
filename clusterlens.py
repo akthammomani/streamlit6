@@ -20,76 +20,96 @@ SHOW_GITHUB_BADGE = True
 st.markdown(
     """
     <style>
-    /* ===== Layout tweaks ===== */
+    /* ================== GLOBAL LAYOUT ================== */
+
+    /* Use the full viewport and stop the whole page from scrolling.
+       We will scroll ONLY the middle column. */
+    html, body {
+        height: 100%;
+        overflow: hidden;
+    }
+
+    [data-testid="stAppViewContainer"] {
+        height: 100vh;
+        overflow: hidden;
+    }
+
     .block-container {
-        padding-top: 1.2rem;      /* push content down a bit */
+        padding-top: 0.8rem;    /* push everything a bit down (fix clipping) */
         padding-left: 0;
         padding-right: 0;
         max-width: 1900px;
+        height: 100%;
     }
 
-    /*
-      We only touch the FIRST row of columns created by st.columns(...)
-      inside the main block-container. That row is your nav/main/TOC.
-      This avoids breaking any nested columns later in the page.
-    */
+    /* Grab the 3 columns from your first st.columns(...) call */
+    .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(1),
+    .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(2),
+    .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(3) {
+        height: calc(100vh - 1.2rem);   /* full height minus top padding */
+    }
 
-    /* ==== Fixed left sidebar (column 1) ==== */
-    .block-container > div:first-child div[data-testid="column"]:nth-of-type(1) {
+    /* ================== FIXED LEFT SIDEBAR ================== */
+
+    .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(1) {
         position: fixed;
-        top: 4.2rem;                 /* just under the Streamlit top bar */
+        top: 0.8rem;
         left: 0;
-        width: 230px;                /* narrower sidebar */
-        height: calc(100vh - 4.2rem);
-        padding: 1rem 1.25rem 2rem 1.25rem;
+        width: 220px;                     /* narrower sidebar */
+        padding: 0.75rem 1.1rem 1.5rem 1.1rem;
         border-right: 1px solid #e5e7eb;
-        background-color: #f3f4f6;   /* light grey */
-        overflow-y: auto;
+        background-color: #f3f4f6;
+        overflow-y: auto;                 /* its own scroll if needed */
         z-index: 100;
     }
 
-    /* ==== Main content (column 2) ==== */
-    .block-container > div:first-child div[data-testid="column"]:nth-of-type(2) {
-        margin-left: 230px;          /* match left sidebar width */
-        margin-right: 210px;         /* match right sidebar width */
-        padding-left: 2rem;
-        padding-right: 2rem;
-        padding-top: 4.2rem;         /* same vertical offset as sidebars */
+    /* ================== SCROLLING MIDDLE CONTENT ================== */
+
+    .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(2) {
+        position: fixed;
+        top: 0.8rem;
+        left: 220px;                      /* match left sidebar width */
+        right: 210px;                     /* match right sidebar width */
+        padding: 0.75rem 1.75rem 1.5rem 1.75rem;
+        overflow-y: auto;                 /* ONLY this column scrolls */
+        background-color: #ffffff;
     }
 
-    /* ==== Fixed right TOC sidebar (column 3) ==== */
-    .block-container > div:first-child div[data-testid="column"]:nth-of-type(3) {
+    /* ================== FIXED RIGHT SIDEBAR ================== */
+
+    .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(3) {
         position: fixed;
-        top: 4.2rem;
+        top: 0.8rem;
         right: 0;
-        width: 210px;                /* narrower right sidebar */
-        height: calc(100vh - 4.2rem);
-        padding: 1rem 1.25rem 2rem 1.25rem;
+        width: 210px;
+        padding: 0.75rem 1.1rem 1.5rem 1.1rem;
         border-left: 1px solid #e5e7eb;
         background-color: #ffffff;
         overflow-y: auto;
         z-index: 100;
     }
 
-    /* ===== Logo centering & size (left column) ===== */
-    .block-container > div:first-child 
-      div[data-testid="column"]:nth-of-type(1) div[data-testid="stImage"] img {
+    /* ================== LOGO (SIZE + CENTER) ================== */
+
+    .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(1)
+      div[data-testid="stImage"] img {
         display: block;
-        margin-left: auto;
-        margin-right: auto;
-        max-width: 170px;            /* smaller logo */
+        margin: 0 auto 0.7rem auto;   /* center + small bottom gap */
+        max-width: 170px;             /* smaller logo */
+        height: auto;
     }
 
-    .block-container > div:first-child 
-      div[data-testid="column"]:nth-of-type(1) div[data-testid="stImage"] {
-        margin-bottom: 0.75rem;
+    /* keep small gap under image wrapper */
+    .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(1)
+      div[data-testid="stImage"] {
+        margin-bottom: 0.4rem;
     }
 
-    /* ===== GitHub button (optional) ===== */
+    /* ================== GITHUB BUTTON ================== */
     .gh-btn {
         display: inline-flex;
         align-items: stretch;
-        margin: 0.25rem auto 1rem auto;
+        margin: 0.15rem auto 0.8rem auto;
         border-radius: 4px;
         overflow: hidden;
         border: 1px solid #d0d7de;
@@ -99,11 +119,9 @@ st.markdown(
         background-color: #ffffff;
         box-shadow: 0 1px 2px rgba(0,0,0,0.03);
     }
-
     .gh-btn:hover {
         background-color: #f6f8fa;
     }
-
     .gh-left {
         display: inline-flex;
         align-items: center;
@@ -111,52 +129,44 @@ st.markdown(
         padding: 0.25rem 0.6rem;
         background-color: #f6f8fa;
     }
-
     .gh-right {
         padding: 0.25rem 0.6rem;
         border-left: 1px solid #d0d7de;
         font-variant-numeric: tabular-nums;
         background-color: #ffffff;
     }
+    .gh-icon { font-size: 0.9rem; }
 
-    .gh-icon {
-        font-size: 0.9rem;
-    }
-
-    /* ===== Search box styling (left column) ===== */
-    .block-container > div:first-child 
-      div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] {
+    /* ===== Search box styling (left column) – unchanged ===== */
+    .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(1)
+      div[data-testid="stTextInput"] {
         position: relative;
         margin: 0.25rem 0 1.25rem 0;
     }
 
-    /* Remove grey outer pill around the input wrapper */
-    .block-container > div:first-child 
-      div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] > div {
+    .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(1)
+      div[data-testid="stTextInput"] > div {
         background-color: transparent !important;
         box-shadow: none !important;
         padding: 0 !important;
     }
 
-    /* Hide the label text of the search input (we'll still pass a label in Python) */
-    .block-container > div:first-child 
-      div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] label {
+    .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(1)
+      div[data-testid="stTextInput"] label {
         display: none;
     }
 
-    /* Search input itself */
-    .block-container > div:first-child 
-      div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"] input {
+    .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(1)
+      div[data-testid="stTextInput"] input {
         border-radius: 999px;
         border: 1px solid #d1d5db;
-        padding: 0.35rem 0.9rem 0.35rem 2rem;  /* left space for icon */
+        padding: 0.35rem 0.9rem 0.35rem 2rem;
         font-size: 0.9rem;
-        background-color: #ffffff;            /* white pill */
+        background-color: #ffffff;
     }
 
-    /* Magnifying glass icon */
-    .block-container > div:first-child 
-      div[data-testid="column"]:nth-of-type(1) div[data-testid="stTextInput"]::before {
+    .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(1)
+      div[data-testid="stTextInput"]::before {
         content: "🔍";
         position: absolute;
         left: 0.6rem;
@@ -167,22 +177,15 @@ st.markdown(
         pointer-events: none;
     }
 
-    /* ===== Docs-style nav (radio but no round dots) ===== */
-    /* This is exactly the same style you already had */
-
-    /* Completely hide the built-in radio label text ("Sections") */
+    /* ===== Radio styling – left as-is (your buttons) ===== */
     div[data-testid="stRadio"] > label {
         display: none !important;
     }
-
-    /* Container that holds all options */
     div[data-testid="stRadio"] div[role="radiogroup"] {
         display: flex;
         flex-direction: column;
         gap: 0.15rem;
     }
-
-    /* Each option row */
     div[data-testid="stRadio"] div[role="radiogroup"] > label {
         padding: 4px 10px;
         border-radius: 4px;
@@ -191,70 +194,48 @@ st.markdown(
         font-weight: 400;
         color: #374151;
     }
-
-    /* Hide the circular radio icon */
     div[data-testid="stRadio"] div[role="radiogroup"] > label > div:first-child {
         display: none !important;
     }
-
-    /* Text container inside label */
-    div[data-testid="stRadio"] div[role="radiogroup"] > label > div:last-child {
-        width: 100%;
-    }
-
-    /* Selected state */
-    div[data-testid="stRadio"] div[role="radiogroup"]
-      > label[data-baseweb="radio"]:has(input:checked) {
+    div[data-testid="stRadio"] div[role="radiogroup"] > label[data-baseweb="radio"]:has(input:checked) {
         background-color: #eff6ff;
         border-left: 3px solid #2563eb;
         color: #111827;
         font-weight: 600;
     }
-
-    /* Hover state */
     div[data-testid="stRadio"] div[role="radiogroup"] > label:hover {
         background-color: #e5e7eb;
     }
 
-    /* ===== Right "On this page" sidebar text tweaks ===== */
-    .block-container > div:first-child 
-      div[data-testid="column"]:nth-of-type(3) h6 {
+    /* ===== Right "On this page" sidebar text tweaks – unchanged ===== */
+    .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(3) h6 {
         font-size: 0.85rem;
         font-weight: 600;
-        text-transform: none;
         margin-bottom: 0.15rem;
         color: #4b5563;
     }
-
-    .block-container > div:first-child 
-      div[data-testid="column"]:nth-of-type(3) ul {
+    .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(3) ul {
         list-style-type: disc;
         padding-left: 1.1rem;
         margin: 0;
     }
-
-    .block-container > div:first-child 
-      div[data-testid="column"]:nth-of-type(3) li {
+    .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(3) li {
         margin: 0;
         padding: 0;
         line-height: 1.1;
     }
-
-    .block-container > div:first-child 
-      div[data-testid="column"]:nth-of-type(3) li a {
+    .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(3) li a {
         font-size: 0.8rem;
         text-decoration: none;
         color: #2563eb;
     }
-
-    .block-container > div:first-child 
-      div[data-testid="column"]:nth-of-type(3) li a:hover {
+    .block-container > div:nth-of-type(1) > div[data-testid="column"]:nth-of-type(3) li a:hover {
         text-decoration: underline;
     }
 
-    /* Headings scroll offset so anchors are not hidden under header */
+    /* Headings offset so anchors aren’t hidden */
     h1, h2, h3, h4, h5, h6 {
-        scroll-margin-top: 2.0rem;
+        scroll-margin-top: 1.8rem;
     }
 
     pre, code {
@@ -264,6 +245,7 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+
 
 
 
@@ -393,7 +375,7 @@ col_nav, col_main, col_toc = st.columns([0.16, 0.6, 0.18])
 # ---------------------- NAV COLUMN -----------------------
 with col_nav:
     st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
-    st.image("clusterlens_logo.png", width=240)
+    st.image("clusterlens_logo.png") #, width=240)
     st.markdown("</div>", unsafe_allow_html=True)
 
     # GitHub stars button (toggle with SHOW_GITHUB_BADGE)
@@ -1001,6 +983,7 @@ with col_toc:
         st.markdown("###### On this page")
         for item in items:
             st.markdown(f"- [{item['label']}](#{item['anchor']})")
+
 
 
 
