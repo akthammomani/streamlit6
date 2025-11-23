@@ -388,7 +388,7 @@ if "active_section" not in st.session_state:
 # ---------------------------------------------------------
 # Layout: three columns (fixed nav + main content + right TOC)
 # ---------------------------------------------------------
-col_nav, col_main, col_toc = st.columns([0.18, 0.6, 0.18])
+col_nav, col_main, col_toc = st.columns([0.16, 0.6, 0.18])
 
 # ---------------------- NAV COLUMN -----------------------
 with col_nav:
@@ -1001,6 +1001,7 @@ with col_toc:
         st.markdown("###### On this page")
         for item in items:
             st.markdown(f"- [{item['label']}](#{item['anchor']})")
+
 
 
 
