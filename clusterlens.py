@@ -1,4 +1,4 @@
-import streamlit as st
+import streamlit as st 
 from textwrap import dedent
 import requests
 
@@ -191,7 +191,7 @@ st.markdown(
         font-weight: 400;
         color: #374151;
     }
-    div[data-testid="stRadio"] div[role="radiogroup"] > label > div:first-child {
+    div[data-testid="stRadio"] div[role="radiogroup"] > label > div[first-child] {
         display: none !important;
     }
     div[data-testid="stRadio"] div[role="radiogroup"]
@@ -284,6 +284,7 @@ SECTIONS = [
     {"id": "api_distributions",        "label": "API: distributions"},
     {"id": "api_narratives_summaries", "label": "API: narratives & summaries"},
     {"id": "api_splits_exports",       "label": "API: splits & exports"},
+    {"id": "release_roadmap",          "label": "Release roadmap"},
     {"id": "under_the_hood",           "label": "How it works"},
 ]
 
@@ -310,6 +311,7 @@ SECTION_SEARCH = {
         ClusterAnalyzer.__init__ ClusterAnalyzer.fit
         cluster_col encoder onehot loo catboost model_type rf lgbm xgb
         eval_max_n test_size sample_n sample_frac stratify_sample
+        choosing sample_n choosing eval_max_n
     """,
     "api_importance_shap": """
         plot_cluster_shap importance_scope positive negative all
@@ -331,6 +333,10 @@ SECTION_SEARCH = {
         get_split_table export_summary save_shap_figs shap_cluster_0
         train test splits summary csv
     """,
+    "release_roadmap": """
+        release roadmap version 0.1.0 0.1.1 planned improvements stability
+        warnings seaborn visualization bugfixes
+    """,
     "under_the_hood": """
         how it works internals implementation nearest_cluster_centroid
         medians IQR shap.Explainer TreeExplainer effect sizes Cramer V
@@ -341,6 +347,8 @@ TOC_ITEMS = {
     "api_init_fit": [
         {"label": "ClusterAnalyzer.__init__", "anchor": "api_init_fit_init"},
         {"label": "ClusterAnalyzer.fit", "anchor": "api_init_fit_fit"},
+        {"label": "Choosing sample_n", "anchor": "api_init_fit_sample_n"},
+        {"label": "Choosing eval_max_n", "anchor": "api_init_fit_eval_max_n"},
     ],
     "installation": [
         {"label": "From PyPI", "anchor": "install_pypi"},
@@ -739,6 +747,118 @@ with col_main:
             """
         )
 
+        # ------------ Choosing sample_n guide ------------
+        subheader_with_anchor(
+            "Choosing `sample_n` in ClusterAnalyzer.fit", "api_init_fit_sample_n"
+        )
+        st.markdown(
+            dedent(
+                """
+                `sample_n` is optional. Use it when your dataset is large and you want
+                to speed things up without starving the smallest cluster.
+
+                The key principle:
+
+                > Never downsample so aggressively that the smallest cluster becomes tiny.
+
+                **1. Inspect cluster sizes**
+
+                ```python
+                cluster_counts = df["Cluster"].value_counts().sort_index()
+                total_n = len(df)
+
+                p_min = cluster_counts.min() / total_n   # share of smallest cluster
+                n_min_cluster = cluster_counts.min()      # rows in smallest cluster
+                ```
+
+                **2. Pick a target rows-per-cluster `R`**
+
+                This is how many rows you want to *keep* for the smallest cluster in the
+                subsample:
+
+                - Exploratory / quick runs: `R ≈ 800–1,000`
+                - Reporting / more stable analysis: `R ≈ 1,000–2,000`
+                - Very large datasets where runtime is tight: stay on the lower end.
+
+                **3. Compute a safe `sample_n`**
+
+                ```python
+                sample_n_min = int(R / p_min)      # rows needed so smallest cluster ≈ R
+                sample_n = min(total_n, sample_n_min)
+                ```
+
+                Then call:
+
+                ```python
+                ca.fit(sample_n=sample_n, stratify_sample=True)
+                ```
+
+                Because sampling is **stratified by cluster** (default), each cluster
+                keeps roughly its original share, and the smallest cluster ends up
+                with ~`R` examples.
+
+                **Summary guidelines**
+
+                - Compute `cluster_counts`, `p_min`, and `n_min_cluster`.
+                - Choose `R` (target rows for the smallest cluster), e.g. 1,000–1,500.
+                - Set `sample_n = min(total_n, int(R / p_min))`.
+                - Keep `stratify_sample=True` so every cluster is represented.
+                - Inspect `ca.get_split_table()` once and adjust `R` if needed.
+                """
+            )
+        )
+
+        # ------------ Choosing eval_max_n guide ------------
+        subheader_with_anchor(
+            "Choosing `eval_max_n` in ClusterAnalyzer", "api_init_fit_eval_max_n"
+        )
+        st.markdown(
+            dedent(
+                """
+                `eval_max_n` controls **how many rows per cluster** are used when computing
+                SHAP values on the evaluation set.
+
+                - If a cluster has **fewer** than `eval_max_n` rows → ClusterLens uses *all* of them.
+                - If a cluster has **more** than `eval_max_n` rows → ClusterLens **subsamples**
+                  that cluster down to `eval_max_n` rows for SHAP.
+
+                This parameter **does not change model training**. It only affects:
+
+                - SHAP runtime / memory.
+                - The stability of SHAP distributions and feature rankings.
+
+                SHAP for tree models is roughly linear in:
+
+                ```text
+                #rows  ×  #features  ×  #trees
+                ```
+
+                so very large evaluation sets can be slow without adding much interpretive value.
+                You almost never need 50k+ rows per cluster just to rank features.
+
+                **Practical defaults**
+
+                Use these as general starting points (assuming tree models and a “normal”
+                number of features):
+
+                - **Exploratory work / notebooks**
+                  - `eval_max_n ≈ 2,000–5,000`
+                  - Good balance of speed and stability.
+                - **Final reports / production-style analysis**
+                  - `eval_max_n ≈ 5,000–10,000`
+                  - Smoother SHAP distributions, still manageable in runtime for most cases.
+                - **Very wide encoded data** (e.g. `> 200` encoded features)
+                  - Prefer the lower end, e.g. `2,000–3,000`, to keep SHAP snappy.
+
+                If you’re unsure, a safe, general default is:
+
+                ```python
+                eval_max_n = 5000
+                ```
+                """
+            )
+        )
+
     elif section_id == "api_importance_shap":
         st.header("API: importance & SHAP")
 
@@ -1049,6 +1169,35 @@ with col_main:
             """
         )
 
+    elif section_id == "release_roadmap":
+        st.header("Release roadmap")
+        st.markdown(
+            """
+            - **Current release – `0.1.0`**  
+              The first public version focuses on:
+
+              - Core `ClusterAnalyzer` API (`fit`, SHAP integration, narratives, contrastive stats).
+              - RandomForest OVR models with optional LightGBM / XGBoost.
+              - Summary exports and basic SHAP bar plots for each cluster.
+              - A minimal, opinionated interface that works out-of-the-box on most clustered tables.
+
+            - **Next planned release – `0.1.1` (upcoming)**  
+              Planned improvements for the next minor version include:
+
+              - Removing deprecation warnings (e.g., upcoming seaborn changes) so notebooks stay clean.
+              - Improved stability & error messages around input validation and edge cases.
+              - Better visual defaults for SHAP and distribution plots  
+                (clearer labels, tighter layouts, more readable colors).
+              - Minor bug fixes and documentation updates based on community feedback.
+            """
+        )
+        st.markdown(
+            """
+            If you hit an issue or have a request for `0.1.1`, please open a GitHub issue –
+            that’s what will drive the next releases.
+            """
+        )
+
     elif section_id == "under_the_hood":
         st.header("How it works")
         st.markdown(
@@ -1088,4 +1237,3 @@ with col_toc:
             st.markdown(f"- [{item['label']}](#{item['anchor']})")
 
     st.markdown("</div>", unsafe_allow_html=True)  # CLOSE right-toc
-
