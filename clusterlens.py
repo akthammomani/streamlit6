@@ -92,7 +92,7 @@ st.markdown(
       div[data-testid="stImage"] img {
         display: block;
         margin: 0 auto 0.7rem auto;
-        max-width: 150px;
+        max-width: 110px;
         height: auto;
     }
 
@@ -1279,6 +1279,7 @@ with col_toc:
             st.markdown(f"- [{item['label']}](#{item['anchor']})")
 
     st.markdown("</div>", unsafe_allow_html=True)  # CLOSE right-toc
+
 
 
 
