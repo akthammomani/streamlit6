@@ -408,7 +408,7 @@ col_nav, col_main, col_toc = st.columns([0.16, 0.6, 0.18])
 with col_nav:
     st.markdown('<div class="left-nav">', unsafe_allow_html=True)
 
-    st.image("clusterlens_logo.png", width=350)
+    st.image("clusterlens_logo.png", width=300)
 
     if SHOW_GITHUB_BADGE:
         stars = get_github_stars()
@@ -1279,6 +1279,7 @@ with col_toc:
             st.markdown(f"- [{item['label']}](#{item['anchor']})")
 
     st.markdown("</div>", unsafe_allow_html=True)  # CLOSE right-toc
+
 
 
 
