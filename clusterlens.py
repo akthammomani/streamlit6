@@ -175,14 +175,24 @@ st.markdown(
 
     /* ---------- 7) Radio styling ---------- */
 
+    /* Hide Streamlit's default radio circles completely */
+    div[data-testid="stRadio"] input[type="radio"] {
+        display: none !important;
+    }
+
+    /* Hide top label that Streamlit adds */
     div[data-testid="stRadio"] > label {
         display: none !important;
     }
+
+    /* Vertical list of options */
     div[data-testid="stRadio"] div[role="radiogroup"] {
         display: flex;
         flex-direction: column;
         gap: 0.15rem;
     }
+
+    /* Each option as a flat button/row */
     div[data-testid="stRadio"] div[role="radiogroup"] > label {
         padding: 4px 10px;
         border-radius: 4px;
@@ -191,9 +201,13 @@ st.markdown(
         font-weight: 400;
         color: #374151;
     }
-    div[data-testid="stRadio"] div[role="radiogroup"] > label > div[first-child] {
+
+    /* Hide any icon/extra container inside the label */
+    div[data-testid="stRadio"] div[role="radiogroup"] > label > div:first-child {
         display: none !important;
     }
+
+    /* Selected option style */
     div[data-testid="stRadio"] div[role="radiogroup"]
       > label[data-baseweb="radio"]:has(input:checked) {
         background-color: #eff6ff;
@@ -201,6 +215,8 @@ st.markdown(
         color: #111827;
         font-weight: 600;
     }
+
+    /* Hover effect */
     div[data-testid="stRadio"] div[role="radiogroup"] > label:hover {
         background-color: #e5e7eb;
     }
@@ -1237,3 +1253,4 @@ with col_toc:
             st.markdown(f"- [{item['label']}](#{item['anchor']})")
 
     st.markdown("</div>", unsafe_allow_html=True)  # CLOSE right-toc
+
