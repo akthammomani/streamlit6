@@ -708,6 +708,8 @@ with col_main:
         )
         st.markdown(
             """
+            - **`num_features`**: When None, ClusterLens will auto-detect the numeric features (e.g. int64, float64) as numeric features.
+            - **`cat_features`**: When None, ClusterLens will treat everything that isn't numeric as categorical.
             - **`cluster_col`**: Name of the column with your cluster labels.
             - **`encoder`**:
               - `"onehot"`: Fast, robust, good default.
@@ -717,6 +719,7 @@ with col_main:
               - `"rf"`: `RandomForestClassifier` (default, zero-config).
               - `"lgbm"`: LightGBM, if you install `lightgbm`.
               - `"xgb"`: XGBoost, if you install `xgboost`.
+            - **`model_params`**: When None, ClusterLens will create the model with standard defaults depends on the selected model.
             - **`eval_max_n`**: Cap the number of rows used for SHAP evaluation
               per cluster. Use this when your test set is huge and SHAP is slow.
 
@@ -731,10 +734,10 @@ with col_main:
                 """
                 ```python
                 ca.fit(
-                    test_size: float = 0.2,
-                    sample_n: Optional[int] = None,
-                    sample_frac: Optional[float] = None,
-                    stratify_sample: bool = True,
+                    test_size: float = 0.2,                 # fraction for test set
+                    sample_n: Optional[int] = None,         # Fellow belo guide for more Info (e.g. 50_000 to subsample big tables by row count)
+                    sample_frac: Optional[float] = None,    # or e.g. 0.5 to take 50% of rows
+                    stratify_sample: bool = True,           # preserve cluster proportions when sampling
                 )
                 ```
                 """
@@ -884,7 +887,7 @@ with col_main:
                 """
                 ```python
                 ca.plot_cluster_shap(
-                    top_n: Optional[int] = None,
+                    top_n: Optional[int] = None,         # None = all features
                     importance_scope: str = "positive",  # "positive" | "negative" | "all"
                     show: bool = True,
                 )
@@ -940,8 +943,8 @@ with col_main:
                 """
                 ```python
                 top_feats = ca.get_top_shap_features(
-                    top_n: Optional[int] = None,
-                    importance_scope: str = "positive",
+                    top_n: Optional[int] = None,          # None = all features
+                    importance_scope: str = "positive",   # "positive" | "negative" | "all"
                 )
                 ```
                 """
@@ -968,12 +971,12 @@ with col_main:
                 ca.contrastive_importance(
                     cluster_a,
                     cluster_b,
-                    top_n: Optional[int] = None,
-                    importance_scope: str = "positive",
-                    mode: str = "hybrid",     # "shap" | "effect" | "hybrid"
+                    top_n: Optional[int] = None,           # None = all features
+                    importance_scope: str = "positive",    # which rows feed SHAP ("positive" usually good)
+                    mode: str = "hybrid",                  # "shap" | "effect" | "hybrid"
                     weight_shap: float = 1.0,
                     weight_effect: float = 1.0,
-                    min_support: float = 0.0,
+                    min_support: float = 0.05,              # ignore rare categories (<5% of cluster)
                 )
                 ```
                 """
@@ -1253,4 +1256,5 @@ with col_toc:
             st.markdown(f"- [{item['label']}](#{item['anchor']})")
 
     st.markdown("</div>", unsafe_allow_html=True)  # CLOSE right-toc
+
 
