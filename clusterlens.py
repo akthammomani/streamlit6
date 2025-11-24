@@ -1283,13 +1283,15 @@ with col_main:
 
         with st.expander("Leave a comment or question"):
             contact_form = """
-            <form action="https://formsubmit.co/aktham.momani81@gmail.com" method="POST">
+            <div class="cl-contact-form">
+              <form action="https://formsubmit.co/aktham.momani81@gmail.com" method="POST">
                 <input type="hidden" name="_captcha" value="false">
-                <input type="text" name="name" placeholder="Your name" required>
+                <input type="text"  name="name"  placeholder="Your name" required>
                 <input type="email" name="email" placeholder="Your email" required>
-                <textarea name="message" placeholder="Your message here" rows="4" required></textarea>
+                <textarea name="message" placeholder="Your message here"></textarea>
                 <button type="submit">Send</button>
-            </form>
+              </form>
+            </div>
             """
             st.markdown(contact_form, unsafe_allow_html=True)
 
@@ -1308,6 +1310,7 @@ with col_toc:
             st.markdown(f"- [{item['label']}](#{item['anchor']})")
 
     st.markdown("</div>", unsafe_allow_html=True)  # CLOSE right-toc
+
 
 
 
