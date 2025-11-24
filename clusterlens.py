@@ -13,6 +13,13 @@ st.set_page_config(
 
 SHOW_GITHUB_BADGE = False
 
+# Custom CSS
+def local_css(file_name):
+    with open(file_name) as f:
+        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
+local_css("style.css")
+
 # ---------------------------------------------------------
 # Global CSS
 # ---------------------------------------------------------
@@ -1301,6 +1308,7 @@ with col_toc:
             st.markdown(f"- [{item['label']}](#{item['anchor']})")
 
     st.markdown("</div>", unsafe_allow_html=True)  # CLOSE right-toc
+
 
 
 
