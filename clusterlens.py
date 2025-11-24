@@ -1272,10 +1272,22 @@ with col_main:
             """
         )
 
-        st.markdown(
-            "---\n"
-            "Questions or ideas for new knobs? Open an issue in the ClusterLens repo. 🚀"
-        )
+        st.markdown("---")
+
+        with st.expander("Leave a comment or question"):
+            contact_form = """
+            <form action="https://formsubmit.co/aktham.momani81@gmail.com" method="POST">
+                <input type="hidden" name="_captcha" value="false">
+                <input type="text" name="name" placeholder="Your name" required>
+                <input type="email" name="email" placeholder="Your email" required>
+                <textarea name="message" placeholder="Your message here" rows="4" required></textarea>
+                <button type="submit">Send</button>
+            </form>
+            """
+            st.markdown(contact_form, unsafe_allow_html=True)
+
+            # Use Local CSS File
+            local_css("style.css") 
 
 # ---------------------- RIGHT TOC COLUMN -----------------
 with col_toc:
@@ -1289,6 +1301,7 @@ with col_toc:
             st.markdown(f"- [{item['label']}](#{item['anchor']})")
 
     st.markdown("</div>", unsafe_allow_html=True)  # CLOSE right-toc
+
 
 
 
