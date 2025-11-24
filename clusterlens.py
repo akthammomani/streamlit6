@@ -1157,15 +1157,27 @@ with col_main:
             dedent(
                 """
                 ```python
+                # Simple usage: save CSV in the current working directory
                 ca.export_summary("cluster_summary.csv")
+
+                # Or: save into a specific folder
+                import os
+
+                out_dir = "clusterlens_outputs"         # choose any folder name
+                os.makedirs(out_dir, exist_ok=True)     # create it if it doesn't exist
+
+                csv_path = os.path.join(out_dir, "cluster_summary.csv")
+                ca.export_summary(csv_path)
                 ```
                 """
             )
         )
         st.markdown(
             """
-            Convenience wrapper around `get_cluster_summary()` that writes a CSV
-            in one call.
+            - By default, `export_summary("cluster_summary.csv")` writes the file
+              into the **current working directory**.
+            - To keep things organised, create a folder (e.g. `clusterlens_outputs`)
+              and pass the **full path** to `export_summary(...)`.
             """
         )
 
@@ -1174,17 +1186,28 @@ with col_main:
             dedent(
                 """
                 ```python
-                ca.plot_cluster_shap(top_n=10, importance_scope="positive")
+                # Basic usage: one PNG per cluster in ./shap_figs
+                ca.plot_cluster_shap(top_n=10, importance_scope="positive", show=False)
                 ca.save_shap_figs("./shap_figs")
+
+                # Or: create a folder first and save there
+                import os
+
+                out_dir = "clusterlens_shap_plots"      # any folder name
+                os.makedirs(out_dir, exist_ok=True)
+
+                ca.plot_cluster_shap(top_n=10, importance_scope="positive", show=False)
+                ca.save_shap_figs(out_dir)
                 ```
                 """
             )
         )
         st.markdown(
             """
-            - Saves one PNG per cluster (e.g. `shap_cluster_0.png`).
-            - Ideal for attaching to email / slide decks without re-running
-              notebooks.
+            - `save_shap_figs(path)` writes **one PNG per cluster** into the
+              provided folder.
+            - If the folder doesn't exist yet, create it first with
+              `os.makedirs(out_dir, exist_ok=True)` and then pass `out_dir`.
             """
         )
 
@@ -1256,5 +1279,6 @@ with col_toc:
             st.markdown(f"- [{item['label']}](#{item['anchor']})")
 
     st.markdown("</div>", unsafe_allow_html=True)  # CLOSE right-toc
+
 
 
