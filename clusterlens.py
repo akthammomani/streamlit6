@@ -462,12 +462,10 @@ with col_nav:
     st.write(
         """
         [![PyPI - clusterlens](https://img.shields.io/pypi/v/clusterlens?label=PyPI&logo=pypi&logoColor=white)](https://pypi.org/project/clusterlens/)
-        [![](https://img.shields.io/badge/GitHub-Follow-informational)](https://github.com/akthammomani)
         [![](https://img.shields.io/badge/LinkedIn-Connect-informational)](https://www.linkedin.com/in/akthammomani/)
         [![](https://img.shields.io/badge/Open-Issue-informational)](https://github.com/akthammomani/ClusterLens/issues)
-        [![MAIL Badge](https://img.shields.io/badge/-aktham.momani81@gmail.com-c14438?style=flat-square&logo=Gmail&logoColor=white&link=mailto:aktham.momani81@gmail.com)](mailto:aktham.momani81@gmail.com)
-
-        ###### © Aktham Momani, 2025. All rights reserved.
+        
+        ###### © Aktham Momani, 2025.
         """
     )
 
@@ -1291,6 +1289,7 @@ with col_toc:
             st.markdown(f"- [{item['label']}](#{item['anchor']})")
 
     st.markdown("</div>", unsafe_allow_html=True)  # CLOSE right-toc
+
 
 
 
