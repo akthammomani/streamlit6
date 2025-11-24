@@ -463,7 +463,7 @@ with col_nav:
         """
         [![PyPI - clusterlens](https://img.shields.io/pypi/v/clusterlens?label=PyPI&logo=pypi&logoColor=white)](https://pypi.org/project/clusterlens/)
         [![](https://img.shields.io/badge/LinkedIn-Connect-informational)](https://www.linkedin.com/in/akthammomani/)
-        [![GitHub Stars](https://img.shields.io/github/stars/akthammomani/ClusterLens?label=Star%20repo&logo=github&style=social)](https://github.com/akthammomani/ClusterLens/stargazers)
+        [![](https://img.shields.io/badge/Open-Issue-informational)](https://github.com/akthammomani/ClusterLens/issues)
         
         ###### © Aktham Momani, 2025.
         """
@@ -1289,6 +1289,7 @@ with col_toc:
             st.markdown(f"- [{item['label']}](#{item['anchor']})")
 
     st.markdown("</div>", unsafe_allow_html=True)  # CLOSE right-toc
+
 
 
 
