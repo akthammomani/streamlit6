@@ -335,7 +335,7 @@ SECTION_SEARCH = {
     """,
     "api_contrastive": """
         contrastive_importance shap effect hybrid weight_shap weight_effect
-        min_support Cohen d Cramér V
+        min_support Cohen d Cramer V
     """,
     "api_distributions": """
         compare_feature_across_clusters histograms stacked bar auto_log_skew
@@ -343,7 +343,7 @@ SECTION_SEARCH = {
     """,
     "api_narratives_summaries": """
         generate_cluster_narratives get_cluster_summary cluster size share
-        nearest cluster Mann-Whitney Cohen d Cramér V
+        nearest cluster Mann-Whitney Cohen d Cramer V
     """,
     "api_splits_exports": """
         get_split_table export_summary save_shap_figs shap_cluster_0
@@ -1005,7 +1005,7 @@ with col_main:
             - `"shap"`: Uses only normalized SHAP magnitudes for each feature.
             - `"effect"`: Uses only statistical contrasts:
               - numeric: Standardized median gaps (in IQR units) + |Cohen's d|.
-              - categorical: Best lift + Cramér's V.
+              - categorical: Best lift + Cramer's V.
             - `"hybrid"` (default): Adds both pieces:
 
             `score = weight_shap * SHAP_norm + weight_effect * EFFECT_norm`
@@ -1096,7 +1096,7 @@ with col_main:
               - median gaps in IQR units.
               - Cohen's d.
               - Mann-Whitney p-values.
-            - Dominant categories with lifts & Cramér's V.
+            - Dominant categories with lifts & Cramer's V.
             - Key differences vs the **nearest cluster** in numeric space.
             - `top_n`: Limits how many numeric & categorical bullets you keep
               per cluster.
@@ -1260,7 +1260,7 @@ with col_main:
               the nearest cluster for contrastive bullets.
             - Numeric contrasts rely heavily on **medians + IQR-based scaling**
               to reduce sensitivity to outliers.
-            - Categorical contrasts use both **lift** and **Cramér's V** to
+            - Categorical contrasts use both **lift** and **Cramer's V** to
               balance rarity vs association strength.
             - SHAP extraction first tries `shap.Explainer(model, X_bg)` and
               falls back to `shap.TreeExplainer` if needed, normalizing the
@@ -1289,6 +1289,7 @@ with col_toc:
             st.markdown(f"- [{item['label']}](#{item['anchor']})")
 
     st.markdown("</div>", unsafe_allow_html=True)  # CLOSE right-toc
+
 
 
 
