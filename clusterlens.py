@@ -945,8 +945,9 @@ with col_main:
         st.markdown("### Example: reading a SHAP bar chart (Cluster 2)")
         st.image(
             "cluster_2_shap.jpg",
-            caption="Top 10 SHAP features – Cluster 2",
-            use_column_width=True,
+            #caption="Top 10 SHAP features – Cluster 2",
+            #use_column_width=True,
+            width=450,
         )
 
         st.markdown(
@@ -1392,6 +1393,7 @@ with col_toc:
             st.markdown(f"- [{item['label']}](#{item['anchor']})")
 
     st.markdown("</div>", unsafe_allow_html=True)  # CLOSE right-toc
+
 
 
 
