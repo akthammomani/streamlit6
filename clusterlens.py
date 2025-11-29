@@ -978,12 +978,11 @@ with col_main:
               Very close to the global value (~0 difference), so this feature
               **doesn’t really distinguish** this cluster.
 
-            **2. Categorical features – `FEATURE=Category (cluster share%, global share%)`**
-
-            - `cluster share%` is the percentage of customers **inside the
-              cluster** with that category.
-            - `global share%` is the percentage of customers in the **whole
-              dataset** with that category.
+            - **Categorical features – `FEATURE=Category (cluster share%, global share%)`**
+                - `cluster share%` is the percentage of customers **inside the
+                  cluster** with that category.
+                - `global share%` is the percentage of customers in the **whole
+                  dataset** with that category.
 
             Examples from the plot:
 
@@ -1397,6 +1396,7 @@ with col_toc:
             st.markdown(f"- [{item['label']}](#{item['anchor']})")
 
     st.markdown("</div>", unsafe_allow_html=True)  # CLOSE right-toc
+
 
 
 
