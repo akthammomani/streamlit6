@@ -953,14 +953,13 @@ with col_main:
             """
             **How to read the feature labels**
 
-            **1. Numeric features – `cluster_value (Δ vs global)`**
-
-            - `cluster_value` is a single number that summarizes the feature
-              inside this cluster only.  
-              ClusterLens uses **median** for skewed features and **mean** for
-              more symmetric ones.
-            - `Δ vs global` is how far the cluster is from the overall dataset
-              on the same metric (positive = higher than global, negative = lower).
+            - **Numeric features – `cluster_value (Δ vs global)`**
+                - `cluster_value` is a single number that summarizes the feature
+                  inside this cluster only.  
+                  ClusterLens uses **median** for skewed features and **mean** for
+                  more symmetric ones.
+                - `Δ vs global` is how far the cluster is from the overall dataset
+                  on the same metric (positive = higher than global, negative = lower).
 
             Examples from the plot:
 
@@ -1398,6 +1397,7 @@ with col_toc:
             st.markdown(f"- [{item['label']}](#{item['anchor']})")
 
     st.markdown("</div>", unsafe_allow_html=True)  # CLOSE right-toc
+
 
 
 
