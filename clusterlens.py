@@ -895,6 +895,8 @@ with col_main:
             )
         )
 
+    #
+
     elif section_id == "api_importance_shap":
         st.header("API: importance & SHAP")
 
@@ -939,6 +941,91 @@ with col_main:
             """
         )
 
+        # --------- Example: reading a SHAP plot for Cluster 2 ----------
+        st.markdown("### Example: reading a SHAP bar chart (Cluster 2)")
+        st.image(
+            "cluster_2_shap.jpg",
+            caption="Top 10 SHAP features – Cluster 2",
+            use_column_width=True,
+        )
+
+        st.markdown(
+            """
+            **How to read the feature labels**
+
+            **1. Numeric features – `cluster_value (Δ vs global)`**
+
+            - `cluster_value` is a single number that summarizes the feature
+              inside this cluster only.  
+              ClusterLens uses **median** for skewed features and **mean** for
+              more symmetric ones.
+            - `Δ vs global` is how far the cluster is from the overall dataset
+              on the same metric (positive = higher than global, negative = lower).
+
+            Examples from the plot:
+
+            - `EMPLOYED_YEARS: 100.00 (+76.69)`  
+              Customers in this cluster have around 100 “employed years” on
+              average, about **76.69 units higher** than the portfolio average.  
+              This feature is much higher than normal in this cluster.
+            - `AGE_YEARS: 60.20 (+17.15)`  
+              Cluster 2 skews older: typical age is ~60 years, about **17 years
+              older** than the overall customer base.
+            - `EXT_SOURCE_MEAN: 0.53 (+0.02)`  
+              External risk score is only slightly better than global
+              (+0.02). The SHAP bar is small, so this feature is **not a main
+              driver** of belonging to this cluster.
+            - `GOODS_TO_CREDIT_RATIO: 0.90 (-0.00)`  
+              Very close to the global value (~0 difference), so this feature
+              **doesn’t really distinguish** this cluster.
+
+            **2. Categorical features – `FEATURE=Category (cluster share%, global share%)`**
+
+            - `cluster share%` is the percentage of customers **inside the
+              cluster** with that category.
+            - `global share%` is the percentage of customers in the **whole
+              dataset** with that category.
+
+            Examples from the plot:
+
+            - `ORGANIZATION_TYPE=XNA (100%, global 18%)`  
+              Every customer in this cluster is `XNA`, versus only 18% globally.  
+              This is a **very strong signature** of the cluster.
+            - `CODE_GENDER=F (100%, global 66%)`  
+              The cluster is entirely female, compared with 66% female overall,
+              so it is **disproportionately female**.
+            - `OCCUPATION_TYPE=Unknown (100%, global 31%)`  
+              Everyone here has unknown occupation, vs 31% in the full data –  
+              another **strong differentiator**.
+            - `NAME_EDUCATION_TYPE=Secondary / secondary special (96%, global 71%)`  
+              This education level is common everywhere, but **even more
+              concentrated** in this cluster (96% vs 71%), so it still helps
+              describe the segment.
+
+            **From a business perspective, what does this SHAP plot say about Cluster 2?**
+
+            - These are **older, long-tenure customers**  
+              (high `AGE_YEARS`, very high `EMPLOYED_YEARS` relative to the portfolio).
+            - They are almost all **female**, mostly **secondary education**,
+              with **unknown occupation**, and all sit in the **XNA organization**
+              bucket – a very specific operational segment in the data.
+            - Risk-related numeric features like `EXT_SOURCE_MEAN` and
+              `GOODS_TO_CREDIT_RATIO` are **roughly in line with the book**, so
+              they don’t define the cluster.  
+              The cluster is driven more by **profile / data-quality attributes**
+              than pure risk.
+
+            You can reuse this reading pattern for any SHAP bar chart:
+
+            - The **bar length** shows how important the feature is for belonging
+              to the cluster.  
+            - The **label before the colon** tells you which feature (and
+              category, if categorical).  
+            - The **value and parentheses** show how the cluster’s typical value
+              compares with the global population.
+            """
+        )
+
         subheader_with_anchor("get_cluster_classification_stats", "api_importance_stats")
         st.markdown(
             dedent(
@@ -976,6 +1063,7 @@ with col_main:
               to keep all of them.
             """
         )
+
 
     elif section_id == "api_contrastive":
         st.header("API: contrastive importance")
@@ -1310,6 +1398,7 @@ with col_toc:
             st.markdown(f"- [{item['label']}](#{item['anchor']})")
 
     st.markdown("</div>", unsafe_allow_html=True)  # CLOSE right-toc
+
 
 
 
